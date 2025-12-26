@@ -6,12 +6,12 @@ with source as
 )
 
 select 
-    cast(staff_id as Int32),
-    cast(store_id as Int32),
-    cast(manager_id as Nullable(Int32)),
-    cast(first_name as String),
-    cast(last_name as String),
-    cast(email as Nullable(String)),
-    cast(phone as Nullable(String)),
-    cast(active as Int8)
+    cast(staff_id as Int32) as staff_id,
+    cast(store_id as Int32) as store_id,
+    cast(manager_id as Nullable(Int32)) as manager_id,
+    cast(first_name as String) as first_name,
+    cast(last_name as String) as last_name,
+    cast(email as Nullable(String)) as email,
+    cast(phone as Nullable(String)) as phone,
+    cast(active as Int8) as active
 from source

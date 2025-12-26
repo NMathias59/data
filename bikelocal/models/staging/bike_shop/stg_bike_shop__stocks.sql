@@ -4,7 +4,7 @@ with source as (
 )
 
 select 
-    cast(store_id as Int32),
-    cast(product_id as Int32),
-    cast(quantity as Int32)
+    cast(store_id as Int32) as store_id,
+    cast(product_id as Int32) as product_id,
+    cast(quantity as Int32) as quantity
 from source

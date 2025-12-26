@@ -6,6 +6,6 @@ with sources as (
 )
 
 select 
-    cast(brand_id as int),
-    cast(brand_name as String)
+    cast(brand_id as Int32) as brand_id,
+    cast(brand_name as String) as brand_name
 from sources

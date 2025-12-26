@@ -2,6 +2,27 @@ version: 2
 
 models:
   - name: stg_bike_shop__brands
+    description: |
+      ## Vue d'ensemble
+      Ce modèle de staging contient les données de référence pour les marques de vélos disponibles dans le système.
+
+      ## Utilisation business
+      - **Marketing** : Analyse des préférences de marque des clients
+      - **Achats** : Négociation avec les fournisseurs de marques
+      - **Reporting** : Répartition des ventes par marque
+
+      ## Clés et contraintes
+      - `brand_id` : Clé primaire auto-incrémentée
+      - `brand_name` : Nom unique de la marque
+
+      ## Exemple d'utilisation
+      ```sql
+      SELECT brand_name, COUNT(*) as product_count
+      FROM stg_bike_shop__brands b
+      JOIN stg_bike_shop__products p ON b.brand_id = p.brand_id
+      GROUP BY brand_name
+      ORDER BY product_count DESC
+      ```
     columns:
       - name: brand_id
         description: "Identifiant unique de la marque (clé primaire)"
@@ -14,6 +35,19 @@ models:
           - not_null
 
   - name: stg_bike_shop__categories
+    description: |
+      ## Vue d'ensemble
+      Définit la hiérarchie des catégories de produits du catalogue vélo.
+
+      ## Utilisation business
+      - **Navigation catalogue** : Organisation des produits en catégories
+      - **Analyse des ventes** : Performance par catégorie
+      - **Marketing** : Ciblage par type de produit
+
+      ## Hiérarchie typique
+      - Vélos (Route, VTT, Ville, Enfants)
+      - Équipements (Casques, Vêtements, Accessoires)
+      - Pièces (Freins, Transmission, Roues)
     columns:
       - name: category_id
         description: "Identifiant unique de la catégorie (clé primaire)"
@@ -26,6 +60,18 @@ models:
           - not_null
 
   - name: stg_bike_shop__customers
+    description: |
+      ## Vue d'ensemble
+      Base clients du magasin de vélos avec informations de contact et localisation.
+
+      ## Utilisation business
+      - **CRM** : Gestion de la relation client
+      - **Marketing** : Segmentation et campagnes ciblées
+      - **Logistique** : Livraison et service client
+      - **Analyse** : Comportement d'achat par région
+
+      ## RGPD/Confidentialité
+      Les données personnelles sont stockées de manière sécurisée et anonymisées dans les analyses agrégées.
     columns:
       - name: customer_id
         description: "Identifiant unique du client (clé primaire)"
@@ -54,6 +100,20 @@ models:
         description: "Code postal du client"
 
   - name: stg_bike_shop__products
+    description: |
+      ## Vue d'ensemble
+      Catalogue complet des produits disponibles à la vente.
+
+      ## Utilisation business
+      - **E-commerce** : Affichage du catalogue en ligne
+      - **Gestion des stocks** : Suivi des niveaux d'inventaire
+      - **Pricing** : Stratégies de tarification
+      - **Achats** : Réapprovisionnement automatique
+
+      ## Relations importantes
+      - Lié à `brands` et `categories` pour la classification
+      - Lié à `stocks` pour la disponibilité
+      - Lié à `order_items` pour les ventes
     columns:
       - name: product_id
         description: "Identifiant unique du produit (clé primaire)"
@@ -80,6 +140,20 @@ models:
           - not_null
 
   - name: stg_bike_shop__staffs
+    description: |
+      ## Vue d'ensemble
+      Organigramme et informations du personnel travaillant dans les magasins.
+
+      ## Utilisation business
+      - **RH** : Gestion des employés et carrières
+      - **Performance** : Analyse des ventes par employé
+      - **Planning** : Gestion des horaires et congés
+      - **Formation** : Suivi des compétences
+
+      ## Hiérarchie
+      - Managers de magasin
+      - Vendeurs
+      - Techniciens
     columns:
       - name: staff_id
         description: "Identifiant unique du membre du personnel (clé primaire)"
@@ -110,6 +184,20 @@ models:
         description: "Référence vers le manager (peut être null pour les managers)"
 
   - name: stg_bike_shop__stocks
+    description: |
+      ## Vue d'ensemble
+      Niveaux de stock en temps réel pour chaque produit dans chaque magasin.
+
+      ## Utilisation business
+      - **Supply chain** : Gestion des réapprovisionnements
+      - **E-commerce** : Affichage de la disponibilité
+      - **Ventes** : Alertes de rupture de stock
+      - **Reporting** : Taux de rotation des stocks
+
+      ## Métriques importantes
+      - Stock disponible vs commandes en cours
+      - Taux de rupture de stock
+      - Valeur du stock par magasin
     columns:
       - name: store_id
         description: "Identifiant du magasin"
@@ -125,6 +213,20 @@ models:
           - not_null
 
   - name: stg_bike_shop__stores
+    description: |
+      ## Vue d'ensemble
+      Informations détaillées sur chaque point de vente physique.
+
+      ## Utilisation business
+      - **Immobilier** : Gestion des baux et emplacements
+      - **Marketing local** : Campagnes géolocalisées
+      - **Logistique** : Gestion des livraisons
+      - **RH** : Affectation du personnel
+
+      ## Types de magasins
+      - Magasins flagship (centres urbains)
+      - Points de vente régionaux
+      - Showrooms spécialisés
     columns:
       - name: store_id
         description: "Identifiant unique du magasin (clé primaire)"
@@ -149,6 +251,26 @@ models:
         description: "Code postal du magasin"
 
   - name: stg_bikelocal__orders
+    description: |
+      ## Vue d'ensemble
+      Historique complet des commandes clients avec leur cycle de vie.
+
+      ## Utilisation business
+      - **Ventes** : Suivi des revenus et marges
+      - **Service client** : Gestion des commandes et livraisons
+      - **Logistique** : Planification des expéditions
+      - **Finance** : Facturation et encaissements
+
+      ## Statuts de commande
+      - 1 : En attente de traitement
+      - 2 : En cours de préparation
+      - 3 : Expédiée
+      - 4 : Livrée
+
+      ## Métriques clés
+      - Chiffre d'affaires par période
+      - Taux de conversion commande → livraison
+      - Délais moyens de traitement
     columns:
       - name: order_id
         description: "Identifiant unique de la commande (clé primaire)"
@@ -181,6 +303,20 @@ models:
           - not_null
 
   - name: stg_bikelocal__order_items
+    description: |
+      ## Vue d'ensemble
+      Détail ligne par ligne des produits commandés.
+
+      ## Utilisation business
+      - **Analyse produit** : Performance des articles
+      - **Marges** : Calcul des profits par produit
+      - **Recommandations** : Systèmes de suggestion
+      - **Stocks** : Prévision des besoins
+
+      ## Calculs importants
+      - Prix total = `quantity * list_price * (1 - discount)`
+      - Marge = `prix_total - coût_achat`
+      - Popularité = nombre de commandes contenant ce produit
     columns:
       - name: order_id
         description: "Référence vers la commande"

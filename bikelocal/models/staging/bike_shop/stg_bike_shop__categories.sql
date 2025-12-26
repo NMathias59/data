@@ -5,6 +5,6 @@ with source as (
 )
 
 select 
-    cast(category_id as int),
-    cast(category_name as String)
+    cast(category_id as Int32) as category_id,
+    cast(category_name as String) as category_name
 from source
