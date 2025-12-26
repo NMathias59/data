@@ -1,0 +1,218 @@
+version: 2
+
+models:
+  - name: stg_bike_shop__brands
+    description: |
+      ## Vue d'ensemble
+      Ce modèle de staging contient les données de référence pour les marques de vélos disponibles dans le système.
+
+      ## Utilisation business
+      - **Marketing** : Analyse des préférences de marque des clients
+      - **Achats** : Négociation avec les fournisseurs de marques
+      - **Reporting** : Répartition des ventes par marque
+
+      ## Clés et contraintes
+      - `brand_id` : Clé primaire auto-incrémentée
+      - `brand_name` : Nom unique de la marque
+
+      ## Exemple d'utilisation
+      ```sql
+      SELECT brand_name, COUNT(*) as product_count
+      FROM {{ ref('stg_bike_shop__brands') }} b
+      JOIN {{ ref('stg_bike_shop__products') }} p ON b.brand_id = p.brand_id
+      GROUP BY brand_name
+      ORDER BY product_count DESC
+      ```
+
+  - name: stg_bike_shop__categories
+    description: |
+      ## Vue d'ensemble
+      Définit la hiérarchie des catégories de produits du catalogue vélo.
+
+      ## Utilisation business
+      - **Navigation catalogue** : Organisation des produits en catégories
+      - **Analyse des ventes** : Performance par catégorie
+      - **Marketing** : Ciblage par type de produit
+
+      ## Hiérarchie typique
+      - Vélos (Route, VTT, Ville, Enfants)
+      - Équipements (Casques, Vêtements, Accessoires)
+      - Pièces (Freins, Transmission, Roues)
+
+  - name: stg_bike_shop__customers
+    description: |
+      ## Vue d'ensemble
+      Base clients du magasin de vélos avec informations de contact et localisation.
+
+      ## Utilisation business
+      - **CRM** : Gestion de la relation client
+      - **Marketing** : Segmentation et campagnes ciblées
+      - **Logistique** : Livraison et service client
+      - **Analyse** : Comportement d'achat par région
+
+      ## RGPD/Confidentialité
+      Les données personnelles sont stockées de manière sécurisée et anonymisées dans les analyses agrégées.
+
+  - name: stg_bike_shop__products
+    description: |
+      ## Vue d'ensemble
+      Catalogue complet des produits disponibles à la vente.
+
+      ## Utilisation business
+      - **E-commerce** : Affichage du catalogue en ligne
+      - **Gestion des stocks** : Suivi des niveaux d'inventaire
+      - **Pricing** : Stratégies de tarification
+      - **Achats** : Réapprovisionnement automatique
+
+      ## Relations importantes
+      - Lié à `brands` et `categories` pour la classification
+      - Lié à `stocks` pour la disponibilité
+      - Lié à `order_items` pour les ventes
+
+  - name: stg_bike_shop__staffs
+    description: |
+      ## Vue d'ensemble
+      Organigramme et informations du personnel travaillant dans les magasins.
+
+      ## Utilisation business
+      - **RH** : Gestion des employés et carrières
+      - **Performance** : Analyse des ventes par employé
+      - **Planning** : Gestion des horaires et congés
+      - **Formation** : Suivi des compétences
+
+      ## Hiérarchie
+      - Managers de magasin
+      - Vendeurs
+      - Techniciens
+
+  - name: stg_bike_shop__stocks
+    description: |
+      ## Vue d'ensemble
+      Niveaux de stock en temps réel pour chaque produit dans chaque magasin.
+
+      ## Utilisation business
+      - **Supply chain** : Gestion des réapprovisionnements
+      - **E-commerce** : Affichage de la disponibilité
+      - **Ventes** : Alertes de rupture de stock
+      - **Reporting** : Taux de rotation des stocks
+
+      ## Métriques importantes
+      - Stock disponible vs commandes en cours
+      - Taux de rupture de stock
+      - Valeur du stock par magasin
+
+  - name: stg_bike_shop__stores
+    description: |
+      ## Vue d'ensemble
+      Informations détaillées sur chaque point de vente physique.
+
+      ## Utilisation business
+      - **Immobilier** : Gestion des baux et emplacements
+      - **Marketing local** : Campagnes géolocalisées
+      - **Logistique** : Gestion des livraisons
+      - **RH** : Affectation du personnel
+
+      ## Types de magasins
+      - Magasins flagship (centres urbains)
+      - Points de vente régionaux
+      - Showrooms spécialisés
+
+  - name: stg_bikelocal__orders
+    description: |
+      ## Vue d'ensemble
+      Historique complet des commandes clients avec leur cycle de vie.
+
+      ## Utilisation business
+      - **Ventes** : Suivi des revenus et marges
+      - **Service client** : Gestion des commandes et livraisons
+      - **Logistique** : Planification des expéditions
+      - **Finance** : Facturation et encaissements
+
+      ## Statuts de commande
+      - 1 : En attente de traitement
+      - 2 : En cours de préparation
+      - 3 : Expédiée
+      - 4 : Livrée
+
+      ## Métriques clés
+      - Chiffre d'affaires par période
+      - Taux de conversion commande → livraison
+      - Délais moyens de traitement
+
+  - name: stg_bikelocal__order_items
+    description: |
+      ## Vue d'ensemble
+      Détail ligne par ligne des produits commandés.
+
+      ## Utilisation business
+      - **Analyse produit** : Performance des articles
+      - **Marges** : Calcul des profits par produit
+      - **Recommandations** : Systèmes de suggestion
+      - **Stocks** : Prévision des besoins
+
+      ## Calculs importants
+      - Prix total = `quantity * list_price * (1 - discount)`
+      - Marge = `prix_total - coût_achat`
+      - Popularité = nombre de commandes contenant ce produit
+
+models_columns:
+  - name: brand_id
+    description: "Identifiant technique auto-incrémenté servant de clé primaire"
+  - name: brand_name
+    description: "Nom commercial de la marque tel qu'affiché aux clients"
+  - name: category_id
+    description: "Identifiant technique pour la classification des produits"
+  - name: category_name
+    description: "Nom de la catégorie utilisé dans la navigation"
+  - name: customer_id
+    description: "Identifiant unique du client dans le système CRM"
+  - name: first_name
+    description: "Prénom officiel du client"
+  - name: last_name
+    description: "Nom de famille officiel du client"
+  - name: phone
+    description: "Numéro de téléphone principal (mobile ou fixe)"
+  - name: email
+    description: "Adresse email principale pour les communications"
+  - name: street
+    description: "Adresse postale complète (numéro, rue, complément)"
+  - name: city
+    description: "Ville de résidence"
+  - name: state
+    description: "État ou région administrative"
+  - name: zip_code
+    description: "Code postal pour le service postal"
+  - name: product_id
+    description: "Identifiant unique du produit dans le catalogue"
+  - name: product_name
+    description: "Nom commercial du produit"
+  - name: model_year
+    description: "Année de lancement du modèle (pour les produits saisonniers)"
+  - name: list_price
+    description: "Prix de vente public TTC"
+  - name: staff_id
+    description: "Identifiant unique de l'employé dans le système RH"
+  - name: active
+    description: "Flag indiquant si l'employé est actuellement en poste (1=actif, 0=parti)"
+  - name: manager_id
+    description: "Référence vers le supérieur hiérarchique (null pour les directeurs)"
+  - name: quantity
+    description: "Nombre d'unités disponibles ou commandées"
+  - name: store_id
+    description: "Identifiant unique du point de vente"
+  - name: store_name
+    description: "Nom commercial du magasin"
+  - name: order_id
+    description: "Numéro unique de commande généré automatiquement"
+  - name: order_status
+    description: "État actuel de la commande dans le processus de traitement"
+  - name: order_date
+    description: "Timestamp de création de la commande"
+  - name: required_date
+    description: "Date souhaitée par le client pour la livraison"
+  - name: shipped_date
+    description: "Date effective d'expédition vers le client"
+  - name: item_id
+    description: "Numéro de séquence de l'article dans la commande (1, 2, 3...)"
+  - name: discount
+    description: "Réduction appliquée (0.1 = 10% de remise)"

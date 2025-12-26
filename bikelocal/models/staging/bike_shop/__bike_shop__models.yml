@@ -1,0 +1,208 @@
+version: 2
+
+models:
+  - name: stg_bike_shop__brands
+    columns:
+      - name: brand_id
+        description: "Identifiant unique de la marque (clé primaire)"
+        tests:
+          - not_null
+          - unique
+      - name: brand_name
+        description: "Nom de la marque de vélo"
+        tests:
+          - not_null
+
+  - name: stg_bike_shop__categories
+    columns:
+      - name: category_id
+        description: "Identifiant unique de la catégorie (clé primaire)"
+        tests:
+          - not_null
+          - unique
+      - name: category_name
+        description: "Nom de la catégorie de produit"
+        tests:
+          - not_null
+
+  - name: stg_bike_shop__customers
+    columns:
+      - name: customer_id
+        description: "Identifiant unique du client (clé primaire)"
+        tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: "Prénom du client"
+        tests:
+          - not_null
+      - name: last_name
+        description: "Nom de famille du client"
+        tests:
+          - not_null
+      - name: phone
+        description: "Numéro de téléphone du client"
+      - name: email
+        description: "Adresse email du client"
+      - name: street
+        description: "Adresse - rue du client"
+      - name: city
+        description: "Ville du client"
+      - name: state
+        description: "État/région du client"
+      - name: zip_code
+        description: "Code postal du client"
+
+  - name: stg_bike_shop__products
+    columns:
+      - name: product_id
+        description: "Identifiant unique du produit (clé primaire)"
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        description: "Nom du produit"
+        tests:
+          - not_null
+      - name: brand_id
+        description: "Référence vers la marque du produit"
+        tests:
+          - not_null
+      - name: category_id
+        description: "Référence vers la catégorie du produit"
+        tests:
+          - not_null
+      - name: model_year
+        description: "Année de modèle du produit"
+      - name: list_price
+        description: "Prix de vente conseillé du produit"
+        tests:
+          - not_null
+
+  - name: stg_bike_shop__staffs
+    columns:
+      - name: staff_id
+        description: "Identifiant unique du membre du personnel (clé primaire)"
+        tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: "Prénom du membre du personnel"
+        tests:
+          - not_null
+      - name: last_name
+        description: "Nom de famille du membre du personnel"
+        tests:
+          - not_null
+      - name: email
+        description: "Adresse email professionnelle"
+      - name: phone
+        description: "Numéro de téléphone professionnel"
+      - name: active
+        description: "Statut d'activité du membre du personnel (1 = actif, 0 = inactif)"
+        tests:
+          - not_null
+      - name: store_id
+        description: "Magasin de rattachement du membre du personnel"
+        tests:
+          - not_null
+      - name: manager_id
+        description: "Référence vers le manager (peut être null pour les managers)"
+
+  - name: stg_bike_shop__stocks
+    columns:
+      - name: store_id
+        description: "Identifiant du magasin"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Identifiant du produit"
+        tests:
+          - not_null
+      - name: quantity
+        description: "Quantité en stock pour ce produit dans ce magasin"
+        tests:
+          - not_null
+
+  - name: stg_bike_shop__stores
+    columns:
+      - name: store_id
+        description: "Identifiant unique du magasin (clé primaire)"
+        tests:
+          - not_null
+          - unique
+      - name: store_name
+        description: "Nom du magasin"
+        tests:
+          - not_null
+      - name: phone
+        description: "Numéro de téléphone du magasin"
+      - name: email
+        description: "Adresse email du magasin"
+      - name: street
+        description: "Adresse - rue du magasin"
+      - name: city
+        description: "Ville du magasin"
+      - name: state
+        description: "État/région du magasin"
+      - name: zip_code
+        description: "Code postal du magasin"
+
+  - name: stg_bikelocal__orders
+    columns:
+      - name: order_id
+        description: "Identifiant unique de la commande (clé primaire)"
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: "Référence vers le client qui a passé la commande"
+        tests:
+          - not_null
+      - name: order_status
+        description: "Statut de la commande (1 = En attente, 2 = En cours, 3 = Expédiée, 4 = Livrée)"
+        tests:
+          - not_null
+      - name: order_date
+        description: "Date et heure de création de la commande"
+        tests:
+          - not_null
+      - name: required_date
+        description: "Date demandée pour la livraison"
+      - name: shipped_date
+        description: "Date effective d'expédition"
+      - name: store_id
+        description: "Magasin qui traite la commande"
+        tests:
+          - not_null
+      - name: staff_id
+        description: "Employé responsable de la commande"
+        tests:
+          - not_null
+
+  - name: stg_bikelocal__order_items
+    columns:
+      - name: order_id
+        description: "Référence vers la commande"
+        tests:
+          - not_null
+      - name: item_id
+        description: "Numéro de ligne dans la commande"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Produit commandé"
+        tests:
+          - not_null
+      - name: quantity
+        description: "Quantité commandée"
+        tests:
+          - not_null
+      - name: list_price
+        description: "Prix unitaire au moment de la commande"
+        tests:
+          - not_null
+      - name: discount
+        description: "Remise appliquée (en pourcentage ou montant)"
+        tests:
+          - not_null
