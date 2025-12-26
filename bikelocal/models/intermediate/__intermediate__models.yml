@@ -1,0 +1,212 @@
+version: 2
+
+models:
+  - name: int_sales__customer_orders
+    description: "Résumé des commandes par client avec métriques d'achat et comportement client"
+    columns:
+      - name: customer_id
+        description: "Identifiant unique du client"
+      - name: first_name
+        description: "Prénom du client"
+      - name: last_name
+        description: "Nom du client"
+      - name: email
+        description: "Adresse email du client"
+      - name: phone
+        description: "Numéro de téléphone du client"
+      - name: city
+        description: "Ville du client"
+      - name: state
+        description: "État du client"
+      - name: total_orders
+        description: "Nombre total de commandes du client"
+      - name: total_amount
+        description: "Montant total dépensé par le client"
+      - name: first_order_date
+        description: "Date de la première commande"
+      - name: last_order_date
+        description: "Date de la dernière commande"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+
+  - name: int_sales__product_performance
+    description: "Performance des ventes par produit avec analyses temporelles"
+    columns:
+      - name: product_id
+        description: "Identifiant unique du produit"
+      - name: product_name
+        description: "Nom du produit"
+      - name: brand_name
+        description: "Marque du produit"
+      - name: category_name
+        description: "Catégorie du produit"
+      - name: model_year
+        description: "Année modèle du produit"
+      - name: original_price
+        description: "Prix de vente original"
+      - name: total_quantity_sold
+        description: "Quantité totale vendue"
+      - name: total_revenue
+        description: "Revenus totaux générés"
+      - name: total_orders
+        description: "Nombre total de commandes contenant ce produit"
+      - name: avg_selling_price
+        description: "Prix de vente moyen"
+      - name: first_sale_date
+        description: "Date de première vente"
+      - name: last_sale_date
+        description: "Date de dernière vente"
+
+  - name: int_sales__store_performance
+    description: "Analyse des ventes par magasin"
+    columns:
+      - name: store_id
+        description: "Identifiant unique du magasin"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: city
+        description: "Ville du magasin"
+      - name: state
+        description: "État du magasin"
+      - name: street
+        description: "Adresse du magasin"
+      - name: zip_code
+        description: "Code postal du magasin"
+      - name: total_orders
+        description: "Nombre total de commandes"
+      - name: unique_customers
+        description: "Nombre de clients uniques"
+      - name: total_items_sold
+        description: "Nombre total d'articles vendus"
+      - name: total_revenue
+        description: "Revenus totaux du magasin"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: first_order_date
+        description: "Date de première commande"
+      - name: last_order_date
+        description: "Date de dernière commande"
+
+  - name: int_inventory__product_stock
+    description: "Niveaux de stock agrégés par produit"
+    columns:
+      - name: product_id
+        description: "Identifiant unique du produit"
+      - name: product_name
+        description: "Nom du produit"
+      - name: brand_name
+        description: "Marque du produit"
+      - name: category_name
+        description: "Catégorie du produit"
+      - name: model_year
+        description: "Année modèle du produit"
+      - name: list_price
+        description: "Prix de vente"
+      - name: total_stock_quantity
+        description: "Quantité totale en stock"
+      - name: stores_carrying_product
+        description: "Nombre de magasins portant ce produit"
+      - name: avg_stock_per_store
+        description: "Stock moyen par magasin"
+      - name: min_stock_per_store
+        description: "Stock minimum par magasin"
+      - name: max_stock_per_store
+        description: "Stock maximum par magasin"
+
+  - name: int_inventory__low_stock_alerts
+    description: "Alertes pour les produits en rupture ou stock faible"
+    columns:
+      - name: store_id
+        description: "Identifiant du magasin"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: product_id
+        description: "Identifiant du produit"
+      - name: product_name
+        description: "Nom du produit"
+      - name: brand_name
+        description: "Marque du produit"
+      - name: category_name
+        description: "Catégorie du produit"
+      - name: current_stock
+        description: "Stock actuel"
+      - name: stock_status
+        description: "Statut du stock (Out of Stock, Critical, Low, Normal)"
+      - name: list_price
+        description: "Prix de vente"
+      - name: stock_value
+        description: "Valeur du stock"
+
+  - name: int_operations__staff_performance
+    description: "Performance des employés avec métriques de vente"
+    columns:
+      - name: staff_id
+        description: "Identifiant unique de l'employé"
+      - name: first_name
+        description: "Prénom de l'employé"
+      - name: last_name
+        description: "Nom de l'employé"
+      - name: email
+        description: "Adresse email de l'employé"
+      - name: phone
+        description: "Numéro de téléphone de l'employé"
+      - name: active
+        description: "Statut actif de l'employé"
+      - name: store_name
+        description: "Nom du magasin où travaille l'employé"
+      - name: manager_first_name
+        description: "Prénom du manager"
+      - name: manager_last_name
+        description: "Nom du manager"
+      - name: total_orders_processed
+        description: "Nombre total de commandes traitées"
+      - name: unique_customers_served
+        description: "Nombre de clients uniques servis"
+      - name: total_items_sold
+        description: "Nombre total d'articles vendus"
+      - name: total_sales_revenue
+        description: "Revenus totaux des ventes"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: first_order_date
+        description: "Date de première commande traitée"
+      - name: last_order_date
+        description: "Date de dernière commande traitée"
+
+  - name: int_operations__order_fulfillment
+    description: "Métriques de traitement et livraison des commandes"
+    columns:
+      - name: order_id
+        description: "Identifiant unique de la commande"
+      - name: customer_id
+        description: "Identifiant du client"
+      - name: first_name
+        description: "Prénom du client"
+      - name: last_name
+        description: "Nom du client"
+      - name: staff_id
+        description: "Identifiant de l'employé qui a traité la commande"
+      - name: staff_first_name
+        description: "Prénom de l'employé"
+      - name: staff_last_name
+        description: "Nom de l'employé"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: order_date
+        description: "Date de la commande"
+      - name: required_date
+        description: "Date requise pour la livraison"
+      - name: shipped_date
+        description: "Date d'expédition"
+      - name: order_status
+        description: "Statut de la commande"
+      - name: total_items
+        description: "Nombre total d'articles dans la commande"
+      - name: order_total
+        description: "Montant total de la commande"
+      - name: fulfillment_status
+        description: "Statut de traitement (Overdue, Pending, On Time, Late)"
+      - name: days_to_ship
+        description: "Nombre de jours pour expédier"
+      - name: days_past_due
+        description: "Nombre de jours de retard"
