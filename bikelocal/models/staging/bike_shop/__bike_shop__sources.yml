@@ -3,7 +3,7 @@ version: 1
 sources:
   - name: bike_shop
     description: Source tables for the bike shop data
-    schema: bike_shop
+    schema: localbike_raw
     tables:
       - name: brands
         description: Table of bike brands
@@ -19,17 +19,195 @@ sources:
               - not_null
       - name: categories
         description: Table of bike categories
+        columns:
+          - name: category_id
+            description: Unique identifier for each category
+            tests:
+              - not_null
+              - unique
+          - name: category_name
+            description: Name of the category
+            tests:
+              - not_null
       - name: customers
         description: Table of bike shop customers
+        columns:
+          - name: customer_id
+            description: Unique identifier for each customer
+            tests:
+              - not_null
+              - unique
+          - name: first_name
+            description: Customer's first name
+            tests:
+              - not_null
+          - name: last_name
+            description: Customer's last name
+            tests:
+              - not_null
+          - name: phone
+            description: Customer's phone number
+          - name: email
+            description: Customer's email address
+          - name: street
+            description: Customer's street address
+          - name: city
+            description: Customer's city
+          - name: state
+            description: Customer's state
+          - name: zip_code
+            description: Customer's zip code
       - name: orders
         description: Table of bike shop orders
+        columns:
+          - name: order_id
+            description: Unique identifier for each order
+            tests:
+              - not_null
+              - unique
+          - name: customer_id
+            description: ID of the customer who placed the order
+            tests:
+              - not_null
+          - name: order_status
+            description: Status of the order
+            tests:
+              - not_null
+          - name: order_date
+            description: Date the order was placed
+            tests:
+              - not_null
+          - name: required_date
+            description: Date the order is required
+          - name: shipped_date
+            description: Date the order was shipped
+          - name: store_id
+            description: ID of the store
+            tests:
+              - not_null
+          - name: staff_id
+            description: ID of the staff member
+            tests:
+              - not_null
       - name: orders_items
         description: Table of items in each order
+        columns:
+          - name: order_id
+            description: ID of the order
+            tests:
+              - not_null
+          - name: item_id
+            description: ID of the item within the order
+            tests:
+              - not_null
+          - name: product_id
+            description: ID of the product
+            tests:
+              - not_null
+          - name: quantity
+            description: Quantity of the product ordered
+            tests:
+              - not_null
+          - name: list_price
+            description: List price of the product
+            tests:
+              - not_null
+          - name: discount
+            description: Discount applied
+            tests:
+              - not_null
       - name: products
         description: Table of bike products
+        columns:
+          - name: product_id
+            description: Unique identifier for each product
+            tests:
+              - not_null
+              - unique
+          - name: product_name
+            description: Name of the product
+            tests:
+              - not_null
+          - name: brand_id
+            description: ID of the brand
+            tests:
+              - not_null
+          - name: category_id
+            description: ID of the category
+            tests:
+              - not_null
+          - name: model_year
+            description: Model year of the product
+          - name: list_price
+            description: List price of the product
+            tests:
+              - not_null
       - name: staffs
         description: Table of bike shop staff members
+        columns:
+          - name: staff_id
+            description: Unique identifier for each staff member
+            tests:
+              - not_null
+              - unique
+          - name: first_name
+            description: Staff member's first name
+            tests:
+              - not_null
+          - name: last_name
+            description: Staff member's last name
+            tests:
+              - not_null
+          - name: email
+            description: Staff member's email
+          - name: phone
+            description: Staff member's phone
+          - name: active
+            description: Whether the staff member is active
+            tests:
+              - not_null
+          - name: store_id
+            description: ID of the store
+            tests:
+              - not_null
+          - name: manager_id
+            description: ID of the manager
       - name: stocks
-        description: Table of product stock levels  
+        description: Table of product stock levels
+        columns:
+          - name: store_id
+            description: ID of the store
+            tests:
+              - not_null
+          - name: product_id
+            description: ID of the product
+            tests:
+              - not_null
+          - name: quantity
+            description: Quantity in stock
+            tests:
+              - not_null
       - name: stores
         description: Table of bike shop store locations
+        columns:
+          - name: store_id
+            description: Unique identifier for each store
+            tests:
+              - not_null
+              - unique
+          - name: store_name
+            description: Name of the store
+            tests:
+              - not_null
+          - name: phone
+            description: Store's phone number
+          - name: email
+            description: Store's email address
+          - name: street
+            description: Store's street address
+          - name: city
+            description: Store's city
+          - name: state
+            description: Store's state
+          - name: zip_code
+            description: Store's zip code
