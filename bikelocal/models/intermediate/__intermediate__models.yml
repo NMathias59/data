@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: int_sales__customer_orders
-    description: "Résumé des commandes par client avec métriques d'achat et comportement client"
+    description: "Analyse RFM (Récence, Fréquence, Montant) et segmentation client pour optimiser la rétention et maximiser les revenus"
     columns:
       - name: customer_id
         description: "Identifiant unique du client"
@@ -28,9 +28,17 @@ models:
         description: "Date de la dernière commande"
       - name: avg_order_value
         description: "Valeur moyenne des commandes"
+      - name: days_since_last_order
+        description: "Jours depuis la dernière commande (RFM - Récence)"
+      - name: order_frequency
+        description: "Fréquence des commandes (RFM - Fréquence)"
+      - name: monetary_value
+        description: "Valeur monétaire totale (RFM - Montant)"
+      - name: customer_segment
+        description: "Segmentation client : Active, Recent, At Risk, Lost"
 
   - name: int_sales__product_performance
-    description: "Performance des ventes par produit avec analyses temporelles"
+    description: "Performance détaillée par produit avec analyses temporelles pour optimiser l'assortiment"
     columns:
       - name: product_id
         description: "Identifiant unique du produit"
@@ -58,7 +66,7 @@ models:
         description: "Date de dernière vente"
 
   - name: int_sales__store_performance
-    description: "Analyse des ventes par magasin"
+    description: "Analyse des ventes par magasin pour optimiser les performances locales"
     columns:
       - name: store_id
         description: "Identifiant unique du magasin"
@@ -87,8 +95,116 @@ models:
       - name: last_order_date
         description: "Date de dernière commande"
 
+  - name: int_sales__product_profitability
+    description: "Analyse de rentabilité par produit avec marges estimées pour optimiser les prix et l'assortiment"
+    columns:
+      - name: product_id
+        description: "Identifiant unique du produit"
+      - name: product_name
+        description: "Nom du produit"
+      - name: brand_name
+        description: "Marque du produit"
+      - name: category_name
+        description: "Catégorie du produit"
+      - name: model_year
+        description: "Année modèle du produit"
+      - name: selling_price
+        description: "Prix de vente"
+      - name: estimated_cost_price
+        description: "Prix de revient estimé (60% du prix de vente)"
+      - name: estimated_margin
+        description: "Marge estimée (40% du prix de vente)"
+      - name: total_units_sold
+        description: "Unités totales vendues"
+      - name: gross_revenue
+        description: "Chiffre d'affaires brut"
+      - name: net_revenue
+        description: "Chiffre d'affaires net (après remises)"
+      - name: total_discounts
+        description: "Total des remises accordées"
+      - name: estimated_profit
+        description: "Profit estimé"
+      - name: profit_margin_percentage
+        description: "Marge bénéficiaire en pourcentage"
+      - name: orders_containing_product
+        description: "Nombre de commandes contenant ce produit"
+      - name: avg_discount_rate
+        description: "Taux de remise moyen"
+      - name: avg_revenue_per_order
+        description: "Revenus moyens par commande"
+
+  - name: int_sales__trends_analysis
+    description: "Analyse des tendances de ventes mensuelles avec indicateurs de croissance"
+    columns:
+      - name: sales_year
+        description: "Année des ventes"
+      - name: sales_month
+        description: "Mois des ventes"
+      - name: sales_quarter
+        description: "Trimestre des ventes"
+      - name: year_month
+        description: "Période année-mois"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: city
+        description: "Ville du magasin"
+      - name: state
+        description: "État du magasin"
+      - name: total_orders
+        description: "Nombre total de commandes"
+      - name: unique_customers
+        description: "Nombre de clients uniques"
+      - name: total_items_sold
+        description: "Articles totaux vendus"
+      - name: total_revenue
+        description: "Revenus totaux"
+      - name: total_discounts_given
+        description: "Total des remises accordées"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: prev_month_revenue
+        description: "Revenus du mois précédent"
+      - name: revenue_growth_pct
+        description: "Pourcentage de croissance des revenus"
+
+  - name: int_sales__category_revenue
+    description: "Contribution des catégories de produits aux revenus totaux"
+    columns:
+      - name: category_id
+        description: "Identifiant unique de la catégorie"
+      - name: category_name
+        description: "Nom de la catégorie"
+      - name: products_in_category
+        description: "Nombre de produits dans la catégorie"
+      - name: total_orders
+        description: "Nombre total de commandes"
+      - name: total_units_sold
+        description: "Unités totales vendues"
+      - name: gross_revenue
+        description: "Chiffre d'affaires brut"
+      - name: net_revenue
+        description: "Chiffre d'affaires net"
+      - name: total_discounts
+        description: "Total des remises"
+      - name: avg_product_price
+        description: "Prix moyen des produits"
+      - name: avg_discount_rate
+        description: "Taux de remise moyen"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: revenue_rank
+        description: "Classement par revenus"
+      - name: revenue_contribution_pct
+        description: "Contribution aux revenus totaux (%)"
+      - name: products_per_order_ratio
+        description: "Ratio produits par commande"
+      - name: total_category_stock
+        description: "Stock total de la catégorie"
+      - name: avg_stock_per_product
+        description: "Stock moyen par produit"
+
   - name: int_inventory__product_stock
-    description: "Niveaux de stock agrégés par produit"
+    description: "Niveaux de stock agrégés par produit pour optimiser la gestion des inventaires"
     columns:
       - name: product_id
         description: "Identifiant unique du produit"
@@ -137,6 +253,38 @@ models:
       - name: stock_value
         description: "Valeur du stock"
 
+  - name: int_inventory__stock_optimization
+    description: "Optimisation des stocks avec recommandations pour maximiser les revenus"
+    columns:
+      - name: store_id
+        description: "Identifiant du magasin"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: product_id
+        description: "Identifiant du produit"
+      - name: product_name
+        description: "Nom du produit"
+      - name: brand_name
+        description: "Marque du produit"
+      - name: category_name
+        description: "Catégorie du produit"
+      - name: current_stock
+        description: "Stock actuel"
+      - name: list_price
+        description: "Prix de vente"
+      - name: stock_value
+        description: "Valeur du stock"
+      - name: monthly_sales_velocity
+        description: "Vélocité des ventes mensuelles"
+      - name: months_of_stock_coverage
+        description: "Mois de couverture de stock"
+      - name: stock_optimization_status
+        description: "Statut d'optimisation du stock"
+      - name: revenue_impact
+        description: "Impact sur les revenus"
+      - name: recommendation
+        description: "Recommandation d'action"
+
   - name: int_operations__staff_performance
     description: "Performance des employés avec métriques de vente"
     columns:
@@ -172,6 +320,50 @@ models:
         description: "Date de première commande traitée"
       - name: last_order_date
         description: "Date de dernière commande traitée"
+
+  - name: int_operations__staff_revenue_performance
+    description: "Performance détaillée des employés actifs avec rankings et tiers de performance"
+    columns:
+      - name: staff_id
+        description: "Identifiant unique de l'employé"
+      - name: staff_full_name
+        description: "Nom complet de l'employé"
+      - name: email
+        description: "Adresse email de l'employé"
+      - name: active
+        description: "Statut actif de l'employé"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: city
+        description: "Ville du magasin"
+      - name: state
+        description: "État du magasin"
+      - name: orders_processed
+        description: "Commandes traitées"
+      - name: unique_customers_served
+        description: "Clients uniques servis"
+      - name: total_items_sold
+        description: "Articles totaux vendus"
+      - name: total_revenue
+        description: "Revenus totaux générés"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: revenue_per_order
+        description: "Revenus par commande"
+      - name: orders_per_customer
+        description: "Commandes par client"
+      - name: first_order_date
+        description: "Première commande traitée"
+      - name: last_order_date
+        description: "Dernière commande traitée"
+      - name: days_active
+        description: "Jours d'activité"
+      - name: revenue_rank_in_store
+        description: "Classement par revenus dans le magasin"
+      - name: performance_tier
+        description: "Tier de performance : Top, High, Good, Average, Low"
+      - name: manager_name
+        description: "Nom du manager"
 
   - name: int_operations__order_fulfillment
     description: "Métriques de traitement et livraison des commandes"
