@@ -4,13 +4,13 @@ with source as (
 )
 
 select 
-    cast(order_id as int),
-    cast(customer_id as int),
-    cast(staff_id as int),
-    cast(store_id as int),
+    cast(order_id as Int32),
+    cast(customer_id as Int32),
+    cast(staff_id as Int32),
+    cast(store_id as Int32),
     cast(order_status as String),
-    cast(order_date as timestamp),
-    cast(required_date as timestamp),
-    cast(shipped_date as timestamp)
+    cast(order_date as DateTime),
+    cast(required_date as Nullable(DateTime)),
+    cast(shipped_date as Nullable(DateTime))
     
 from source

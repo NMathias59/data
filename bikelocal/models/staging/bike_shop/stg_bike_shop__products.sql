@@ -5,10 +5,10 @@ with source as (
 )
 
 select 
-    cast(product_id as int),
-    cast(brand_id as int),
-    cast(category_id as int),
+    cast(product_id as Int32),
+    cast(brand_id as Int32),
+    cast(category_id as Int32),
     cast(product_name as String),
-    cast(model_year as int),
-    cast(list_price as FLOAT)
+    cast(model_year as Int32),
+    cast(list_price as Float64)
 from source

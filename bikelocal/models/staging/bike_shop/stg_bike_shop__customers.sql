@@ -5,13 +5,13 @@ with source as (
 )
 
 select 
-    cast(customer_id as int),
+    cast(customer_id as Int32),
     cast(first_name as String),
     cast(last_name as String),
-    cast(email as String),
-    CAST(phone as String),
-    cast(city as String),
-    cast(state as String),
-    cast(street as String),
-    cast(zip_code as String)
+    cast(email as Nullable(String)),
+    CAST(phone as Nullable(String)),
+    cast(city as Nullable(String)),
+    cast(state as Nullable(String)),
+    cast(street as Nullable(String)),
+    cast(zip_code as Nullable(String))
 from source

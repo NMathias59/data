@@ -4,10 +4,10 @@ with source as (
 )
 
 SELECT
-    cast(item_id as int),
-    cast(order_id as int),
-    cast(product_id as int),
-    cast(discount as FLOAT),
-    cast(quantity as int),
-    cast(list_price as FLOAT)
+    cast(item_id as Int32),
+    cast(order_id as Int32),
+    cast(product_id as Int32),
+    cast(discount as Float64),
+    cast(quantity as Int32),
+    cast(list_price as Float64)
 FROM source
