@@ -1,0 +1,35 @@
+version: 1
+
+sources:
+  - name: bike_shop
+    description: Source tables for the bike shop data
+    schema: bike_shop
+    tables:
+      - name: brands
+        description: Table of bike brands
+        columns:
+          - name: brand_id
+            description: Unique identifier for each brand
+            tests:
+              - not_null
+              - unique
+          - name: brand_name
+            description: Name of the brand
+            tests:
+              - not_null
+      - name: categories
+        description: Table of bike categories
+      - name: customers
+        description: Table of bike shop customers
+      - name: orders
+        description: Table of bike shop orders
+      - name: orders_items
+        description: Table of items in each order
+      - name: products
+        description: Table of bike products
+      - name: staffs
+        description: Table of bike shop staff members
+      - name: stocks
+        description: Table of product stock levels  
+      - name: stores
+        description: Table of bike shop store locations

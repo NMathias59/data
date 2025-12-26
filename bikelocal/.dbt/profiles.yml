@@ -1,0 +1,29 @@
+# profiles.yml pour dbt (ClickHouse)
+# Placez ce fichier dans %USERPROFILE%\.dbt\profiles.yml pour un usage global
+# Ou conservez ce fichier dans le projet et exportez la variable DBT_PROFILES_DIR si nécessaire.
+
+bikelocal:
+  target: clickhouse
+  outputs:
+    clickhouse:
+      type: clickhouse
+      threads: 4
+      # Utilise des variables d'environnement pour éviter de stocker des secrets en clair
+      host: "host.docker.internal"
+      port: 8123
+      user: "airbyte_ch"
+      password: "f!LVd7jzgmBCDwSZp9yu"
+      database: "localbike_raw"
+      schema: "localbike_raw"
+      # secure: true  # si vous utilisez TLS/HTTPS
+      # verify: true  # vérification du certificat (si secure=true)
+
+# Exemples d'utilisation des variables d'environnement (PowerShell)
+# $env:CLICKHOUSE_HOST='host.docker.internal'
+# $env:CLICKHOUSE_PORT='8123'
+# $env:CLICKHOUSE_USER='airbyte_ch'
+# $env:CLICKHOUSE_PASSWORD='f!LVd7jzgmBCDwSZp9yu'
+
+# Pour vérifier la connexion depuis le projet :
+# 1) Activez votre venv : .\.venv_dbt\Scripts\Activate.ps1
+# 2) dbt debug --project-dir . --profiles-dir .\.dbt

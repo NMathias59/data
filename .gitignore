@@ -1,0 +1,8 @@
+# Environments
+.venv_dbt/
+
+# Logs
+logs/
+
+# Personal configs
+.user.yml
