@@ -89,7 +89,7 @@ sources:
             description: ID of the staff member
             tests:
               - not_null
-      - name: orders_items
+      - name: order_items
         description: Table of items in each order
         columns:
           - name: order_id
