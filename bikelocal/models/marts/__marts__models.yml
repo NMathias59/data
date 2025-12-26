@@ -1,0 +1,638 @@
+version: 2
+
+models:
+  # Dimensions communes
+  - name: dim_time
+    description: "Dimension temporelle avec tous les attributs de date pour l'analyse temporelle"
+    columns:
+      - name: date_key
+        description: "Clé primaire - date au format YYYY-MM-DD"
+      - name: year
+        description: "Année"
+      - name: month
+        description: "Mois (1-12)"
+      - name: day
+        description: "Jour du mois"
+      - name: day_of_week
+        description: "Jour de la semaine (1=Lundi, 7=Dimanche)"
+      - name: day_of_year
+        description: "Jour de l'année"
+      - name: quarter
+        description: "Trimestre (1-4)"
+      - name: year_month
+        description: "Période année-mois (YYYY-MM)"
+      - name: year_quarter
+        description: "Période année-trimestre (YYYY-Q1)"
+      - name: day_type
+        description: "Type de jour (Weekday/Weekend)"
+      - name: month_name
+        description: "Nom du mois en anglais"
+      - name: day_name
+        description: "Nom du jour en anglais"
+      - name: is_weekend
+        description: "Indicateur weekend (1=weekend, 0=weekday)"
+      - name: season
+        description: "Saison (Winter/Spring/Summer/Fall)"
+      - name: fiscal_quarter
+        description: "Trimestre fiscal"
+
+  - name: dim_stores
+    description: "Dimension magasins avec informations géographiques et de classification"
+    columns:
+      - name: store_id
+        description: "Clé primaire - identifiant unique du magasin"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: phone
+        description: "Numéro de téléphone"
+      - name: email
+        description: "Adresse email"
+      - name: street
+        description: "Rue"
+      - name: city
+        description: "Ville"
+      - name: state
+        description: "État"
+      - name: zip_code
+        description: "Code postal"
+      - name: full_address
+        description: "Adresse complète formatée"
+      - name: region
+        description: "Région géographique (West Coast, South, Northeast, Midwest, Other)"
+      - name: store_type
+        description: "Type de magasin (Flagship, Branch, Standard)"
+
+  - name: dim_products
+    description: "Dimension produits avec classifications business et calculs de marge"
+    columns:
+      - name: product_id
+        description: "Clé primaire - identifiant unique du produit"
+      - name: product_name
+        description: "Nom du produit"
+      - name: brand_name
+        description: "Marque"
+      - name: category_name
+        description: "Catégorie"
+      - name: model_year
+        description: "Année modèle"
+      - name: list_price
+        description: "Prix de vente"
+      - name: price_tier
+        description: "Niveau de prix (Premium, High, Medium, Entry)"
+      - name: product_category_group
+        description: "Groupe de catégorie simplifié"
+      - name: product_age_category
+        description: "Catégorie d'âge (New, Recent, Legacy)"
+      - name: estimated_cost_price
+        description: "Prix de revient estimé (60% du prix de vente)"
+      - name: estimated_margin
+        description: "Marge estimée (40% du prix de vente)"
+
+  # Dimensions spécifiques
+  - name: dim_customers
+    description: "Dimension clients enrichie avec segmentation RFM et métriques LTV"
+    columns:
+      - name: customer_id
+        description: "Clé primaire - identifiant unique du client"
+      - name: first_name
+        description: "Prénom"
+      - name: last_name
+        description: "Nom"
+      - name: full_name
+        description: "Nom complet"
+      - name: phone
+        description: "Téléphone"
+      - name: email
+        description: "Email"
+      - name: street
+        description: "Rue"
+      - name: city
+        description: "Ville"
+      - name: state
+        description: "État"
+      - name: zip_code
+        description: "Code postal"
+      - name: rfm_segment
+        description: "Segment RFM (Champion, Loyal, Potential, At Risk, Lost)"
+      - name: region
+        description: "Région géographique"
+      - name: total_orders
+        description: "Nombre total de commandes"
+      - name: lifetime_value
+        description: "Valeur vie client totale"
+      - name: first_order_date
+        description: "Date de première commande"
+      - name: last_order_date
+        description: "Date de dernière commande"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: days_since_last_order
+        description: "Jours depuis dernière commande"
+      - name: order_frequency
+        description: "Fréquence des commandes"
+      - name: monetary_value
+        description: "Valeur monétaire totale"
+
+  - name: dim_staff
+    description: "Dimension employés avec hiérarchie et métriques de performance"
+    columns:
+      - name: staff_id
+        description: "Clé primaire - identifiant unique de l'employé"
+      - name: first_name
+        description: "Prénom"
+      - name: last_name
+        description: "Nom"
+      - name: full_name
+        description: "Nom complet"
+      - name: email
+        description: "Email"
+      - name: phone
+        description: "Téléphone"
+      - name: active
+        description: "Statut actif (1=actif, 0=inactive)"
+      - name: manager_first_name
+        description: "Prénom du manager"
+      - name: manager_last_name
+        description: "Nom du manager"
+      - name: manager_full_name
+        description: "Nom complet du manager"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: store_city
+        description: "Ville du magasin"
+      - name: store_state
+        description: "État du magasin"
+      - name: store_region
+        description: "Région du magasin"
+      - name: total_orders_processed
+        description: "Total des commandes traitées"
+      - name: unique_customers_served
+        description: "Nombre de clients uniques servis"
+      - name: total_items_sold
+        description: "Total des articles vendus"
+      - name: total_sales_revenue
+        description: "Revenus totaux des ventes"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: first_order_date
+        description: "Première commande traitée"
+      - name: last_order_date
+        description: "Dernière commande traitée"
+      - name: performance_tier
+        description: "Tier de performance (Top, High, Good, Average, Low)"
+      - name: revenue_rank_in_store
+        description: "Classement par revenus dans le magasin"
+
+  # Tables de faits enrichies
+  - name: fct_product_profitability
+    description: "Table de faits de rentabilité produit avec toutes les métriques business avancées"
+    columns:
+      - name: product_id
+        description: "FK vers dim_products"
+      - name: product_name
+        description: "Nom du produit (dénormalisé)"
+      - name: brand_name
+        description: "Marque (dénormalisé)"
+      - name: category_name
+        description: "Catégorie (dénormalisé)"
+      - name: model_year
+        description: "Année modèle"
+      - name: selling_price
+        description: "Prix de vente"
+      - name: estimated_cost_price
+        description: "Prix de revient estimé"
+      - name: estimated_margin
+        description: "Marge estimée"
+      - name: total_units_sold
+        description: "Total unités vendues"
+      - name: gross_revenue
+        description: "Chiffre d'affaires brut"
+      - name: net_revenue
+        description: "Chiffre d'affaires net"
+      - name: total_discounts
+        description: "Total des remises"
+      - name: estimated_profit
+        description: "Profit estimé"
+      - name: profit_margin_percentage
+        description: "Marge bénéficiaire en %"
+      - name: orders_containing_product
+        description: "Nombre de commandes contenant ce produit"
+      - name: avg_discount_rate
+        description: "Taux de remise moyen"
+      - name: avg_revenue_per_order
+        description: "Revenus moyens par commande"
+      - name: first_sale_date
+        description: "Première date de vente"
+      - name: last_sale_date
+        description: "Dernière date de vente"
+      - name: total_orders
+        description: "Total des commandes"
+      - name: total_stock_quantity
+        description: "Stock total"
+      - name: stores_carrying_product
+        description: "Nombre de magasins portant le produit"
+      - name: avg_stock_per_store
+        description: "Stock moyen par magasin"
+      - name: monthly_sales_velocity
+        description: "Vélocité des ventes mensuelles"
+      - name: months_of_stock_coverage
+        description: "Mois de couverture de stock"
+      - name: stock_optimization_status
+        description: "Statut d'optimisation du stock"
+      - name: revenue_impact
+        description: "Impact sur les revenus"
+      - name: recommendation
+        description: "Recommandation d'action"
+      - name: margin_category
+        description: "Catégorie de marge (High, Good, Medium, Low)"
+      - name: sales_performance_category
+        description: "Catégorie de performance ventes (Best, Good, Average, Slow Seller)"
+
+  - name: fct_sales_trends
+    description: "Table de faits des tendances de vente avec analyses temporelles et croissance"
+    columns:
+      - name: year_month_key
+        description: "Clé période YYYY-MM"
+      - name: sales_year
+        description: "Année des ventes"
+      - name: sales_month
+        description: "Mois des ventes"
+      - name: sales_quarter
+        description: "Trimestre des ventes"
+      - name: year_month
+        description: "Période année-mois"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: city
+        description: "Ville du magasin"
+      - name: state
+        description: "État du magasin"
+      - name: region
+        description: "Région du magasin"
+      - name: total_orders
+        description: "Nombre total de commandes"
+      - name: unique_customers
+        description: "Nombre de clients uniques"
+      - name: total_items_sold
+        description: "Articles totaux vendus"
+      - name: total_revenue
+        description: "Revenus totaux"
+      - name: total_discounts_given
+        description: "Total des remises accordées"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: prev_month_revenue
+        description: "Revenus du mois précédent"
+      - name: revenue_growth_pct
+        description: "Pourcentage de croissance des revenus"
+      - name: revenue_per_customer
+        description: "Revenus par client"
+      - name: orders_per_customer
+        description: "Commandes par client"
+      - name: discount_rate_pct
+        description: "Taux de remise en %"
+      - name: growth_category
+        description: "Catégorie de croissance (Strong, Good, Stable, Declining)"
+      - name: revenue_category
+        description: "Catégorie de revenus (High, Medium, Low, Very Low)"
+      - name: season
+        description: "Saison (Winter, Spring, Summer, Fall)"
+      - name: is_growing
+        description: "Indicateur de croissance (1=croissance, 0=décroissance)"
+
+  - name: fct_operations_performance
+    description: "Table de faits des performances opérationnelles avec fulfillment et staff metrics"
+    columns:
+      - name: order_id
+        description: "ID de la commande"
+      - name: customer_id
+        description: "FK vers dim_customers"
+      - name: staff_id
+        description: "FK vers dim_staff"
+      - name: store_name
+        description: "Nom du magasin"
+      - name: order_date
+        description: "Date de commande"
+      - name: required_date
+        description: "Date requise de livraison"
+      - name: shipped_date
+        description: "Date d'expédition"
+      - name: order_status
+        description: "Statut de la commande"
+      - name: total_items
+        description: "Nombre total d'articles"
+      - name: order_total
+        description: "Montant total de la commande"
+      - name: fulfillment_status
+        description: "Statut de traitement (On Time, Late, Overdue, Pending)"
+      - name: days_to_ship
+        description: "Jours pour expédier"
+      - name: days_past_due
+        description: "Jours de retard"
+      - name: total_orders_processed
+        description: "Total des commandes traitées par l'employé"
+      - name: unique_customers_served
+        description: "Clients uniques servis par l'employé"
+      - name: total_items_sold
+        description: "Articles totaux vendus par l'employé"
+      - name: total_sales_revenue
+        description: "Revenus totaux générés par l'employé"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes de l'employé"
+      - name: first_order_date
+        description: "Première commande traitée"
+      - name: last_order_date
+        description: "Dernière commande traitée"
+      - name: orders_processed
+        description: "Commandes traitées (métrique ranking)"
+      - name: revenue_per_order
+        description: "Revenus par commande"
+      - name: orders_per_customer
+        description: "Commandes par client"
+      - name: staff_first_order
+        description: "Première commande de l'employé"
+      - name: staff_last_order
+        description: "Dernière commande de l'employé"
+      - name: days_active
+        description: "Jours d'activité"
+      - name: revenue_rank_in_store
+        description: "Classement par revenus dans le magasin"
+      - name: performance_tier
+        description: "Tier de performance (Top, High, Good, Average, Low)"
+      - name: manager_name
+        description: "Nom du manager"
+      - name: fulfillment_performance
+        description: "Performance de fulfillment (Excellent, Needs Improvement, Critical)"
+      - name: staff_performance_category
+        description: "Catégorie de performance employé"
+      - name: shipping_speed_category
+        description: "Catégorie de vitesse d'expédition (Very Fast, Fast, Normal, Slow)"
+
+  - name: fct_category_performance
+    description: "Table de faits de performance par catégorie de produits"
+    columns:
+      - name: category_id
+        description: "ID de la catégorie"
+      - name: category_name
+        description: "Nom de la catégorie"
+      - name: products_in_category
+        description: "Nombre de produits dans la catégorie"
+      - name: total_orders
+        description: "Nombre total de commandes"
+      - name: total_units_sold
+        description: "Unités totales vendues"
+      - name: gross_revenue
+        description: "Chiffre d'affaires brut"
+      - name: net_revenue
+        description: "Chiffre d'affaires net"
+      - name: total_discounts
+        description: "Total des remises"
+      - name: avg_product_price
+        description: "Prix moyen des produits"
+      - name: avg_discount_rate
+        description: "Taux de remise moyen"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: revenue_rank
+        description: "Classement par revenus"
+      - name: revenue_contribution_pct
+        description: "Contribution aux revenus totaux (%)"
+      - name: products_per_order_ratio
+        description: "Ratio produits par commande"
+      - name: total_category_stock
+        description: "Stock total de la catégorie"
+      - name: avg_stock_per_product
+        description: "Stock moyen par produit"
+      - name: category_importance
+        description: "Importance de la catégorie (Top, Major, Medium, Minor)"
+      - name: price_segment
+        description: "Segment de prix (Premium, High-End, Mid-Range, Entry-Level)"
+      - name: cross_sell_potential
+        description: "Potentiel de cross-selling (High, Medium, Low)"
+      - name: avg_revenue_per_order
+        description: "Revenus moyens par commande"
+      - name: avg_units_per_product
+        description: "Unités moyennes par produit"
+      - name: stock_coverage_months
+        description: "Mois de couverture de stock"
+
+  - name: fct_stock_alerts
+    description: "Table de faits des alertes de stock avec priorités d'action"
+    columns:
+      - name: store_id
+        description: "FK vers dim_stores"
+      - name: store_name
+        description: "Nom du magasin (dénormalisé)"
+      - name: product_id
+        description: "FK vers dim_products"
+      - name: product_name
+        description: "Nom du produit (dénormalisé)"
+      - name: brand_name
+        description: "Marque (dénormalisé)"
+      - name: category_name
+        description: "Catégorie (dénormalisé)"
+      - name: current_stock
+        description: "Stock actuel"
+      - name: list_price
+        description: "Prix de vente (dénormalisé)"
+      - name: stock_value
+        description: "Valeur du stock"
+      - name: stock_status
+        description: "Statut du stock (Out of Stock, Critical, Low, Normal)"
+      - name: monthly_sales_velocity
+        description: "Vélocité des ventes mensuelles"
+      - name: months_of_stock_coverage
+        description: "Mois de couverture de stock"
+      - name: stock_optimization_status
+        description: "Statut d'optimisation du stock"
+      - name: revenue_impact
+        description: "Impact sur les revenus"
+      - name: recommendation
+        description: "Recommandation d'action"
+      - name: action_priority
+        description: "Priorité d'action (Immediate, Urgent, Restock Soon, Optimize, Monitor)"
+      - name: stock_value_category
+        description: "Catégorie de valeur du stock (High, Medium, Low, Very Low)"
+      - name: product_velocity_category
+        description: "Catégorie de vélocité produit (Fast, Medium, Slow, Very Slow)"
+
+  - name: fct_inventory
+    description: "Table de faits des stocks avec métriques d'optimisation"
+    columns:
+      - name: store_id
+        description: "FK vers dim_stores"
+      - name: product_id
+        description: "FK vers dim_products"
+      - name: current_stock
+        description: "Stock actuel"
+      - name: product_name
+        description: "Nom du produit (dénormalisé)"
+      - name: brand_name
+        description: "Marque (dénormalisé)"
+      - name: category_name
+        description: "Catégorie (dénormalisé)"
+      - name: list_price
+        description: "Prix de vente (dénormalisé)"
+      - name: stock_value
+        description: "Valeur du stock (stock * prix)"
+      - name: stock_status
+        description: "Statut du stock (Out of Stock, Critical, Low, Normal, High)"
+      - name: monthly_sales_velocity
+        description: "Vélocité des ventes mensuelles"
+      - name: months_of_stock_coverage
+        description: "Mois de couverture de stock"
+      - name: stock_optimization_status
+        description: "Statut d'optimisation du stock"
+      - name: revenue_impact
+        description: "Impact sur les revenus"
+      - name: recommendation
+        description: "Recommandation d'action"
+
+  - name: fct_staff_performance
+    description: "Table de faits de performance des employés - granularité commande"
+    columns:
+      - name: staff_id
+        description: "FK vers dim_staff"
+      - name: store_id
+        description: "FK vers dim_stores"
+      - name: performance_date_key
+        description: "FK vers dim_time - date de performance"
+      - name: orders_count
+        description: "Nombre de commandes (toujours 1 par ligne)"
+      - name: customer_id
+        description: "FK vers dim_customers - client servi"
+      - name: items_sold
+        description: "Nombre d'articles vendus dans la commande"
+      - name: revenue_generated
+        description: "Revenus générés par la commande"
+      - name: performance_year
+        description: "Année de performance (dénormalisé)"
+      - name: performance_month
+        description: "Mois de performance (dénormalisé)"
+      - name: performance_year_month
+        description: "Période année-mois (dénormalisé)"
+
+  # Tables de reporting
+  - name: rpt_sales_summary
+    description: "Rapport agrégé des ventes par dimensions business"
+    columns:
+      - name: year
+        description: "Année"
+      - name: month
+        description: "Mois"
+      - name: year_month
+        description: "Période année-mois"
+      - name: quarter
+        description: "Trimestre"
+      - name: city
+        description: "Ville du magasin"
+      - name: state
+        description: "État du magasin"
+      - name: region
+        description: "Région du magasin"
+      - name: brand_name
+        description: "Marque du produit"
+      - name: category_name
+        description: "Catégorie du produit"
+      - name: price_tier
+        description: "Niveau de prix"
+      - name: product_category_group
+        description: "Groupe de catégorie"
+      - name: total_orders
+        description: "Nombre total de commandes"
+      - name: unique_customers
+        description: "Nombre de clients uniques"
+      - name: total_items_sold
+        description: "Total des articles vendus"
+      - name: gross_revenue
+        description: "Chiffre d'affaires brut"
+      - name: total_discounts
+        description: "Total des remises"
+      - name: net_revenue
+        description: "Chiffre d'affaires net"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: avg_customer_value
+        description: "Valeur moyenne par client"
+      - name: discount_rate_pct
+        description: "Taux de remise en pourcentage"
+
+  - name: rpt_customer_ltv
+    description: "Rapport de valeur vie client avec projections et segmentation"
+    columns:
+      - name: customer_id
+        description: "Identifiant du client"
+      - name: full_name
+        description: "Nom complet du client"
+      - name: city
+        description: "Ville"
+      - name: state
+        description: "État"
+      - name: region
+        description: "Région"
+      - name: rfm_segment
+        description: "Segment RFM"
+      - name: total_orders
+        description: "Nombre total de commandes"
+      - name: lifetime_value
+        description: "Valeur vie client totale"
+      - name: avg_order_value
+        description: "Valeur moyenne des commandes"
+      - name: order_frequency
+        description: "Fréquence des commandes"
+      - name: first_order_date
+        description: "Date de première commande"
+      - name: last_order_date
+        description: "Date de dernière commande"
+      - name: customer_lifespan_days
+        description: "Durée de vie client en jours"
+      - name: customer_lifespan_months
+        description: "Durée de vie client en mois"
+      - name: days_since_last_order
+        description: "Jours depuis dernière commande"
+      - name: retention_status
+        description: "Statut de rétention"
+      - name: projected_annual_value
+        description: "Valeur annuelle projetée"
+      - name: customer_value_tier
+        description: "Tier de valeur client"
+
+  - name: rpt_inventory_status
+    description: "Rapport de statut des stocks avec priorités d'action"
+    columns:
+      - name: store_name
+        description: "Nom du magasin"
+      - name: city
+        description: "Ville du magasin"
+      - name: state
+        description: "État du magasin"
+      - name: region
+        description: "Région du magasin"
+      - name: product_name
+        description: "Nom du produit"
+      - name: brand_name
+        description: "Marque"
+      - name: category_name
+        description: "Catégorie"
+      - name: price_tier
+        description: "Niveau de prix"
+      - name: current_stock
+        description: "Stock actuel"
+      - name: stock_value
+        description: "Valeur du stock"
+      - name: stock_status
+        description: "Statut du stock"
+      - name: monthly_sales_velocity
+        description: "Vélocité des ventes mensuelles"
+      - name: months_of_stock_coverage
+        description: "Mois de couverture"
+      - name: stock_optimization_status
+        description: "Statut d'optimisation"
+      - name: revenue_impact
+        description: "Impact sur les revenus"
+      - name: recommendation
+        description: "Recommandation"
+      - name: inventory_action_priority
+        description: "Priorité d'action"
+      - name: stock_value_tier
+        description: "Tier de valeur du stock"
