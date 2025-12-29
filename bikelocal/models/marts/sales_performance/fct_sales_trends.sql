@@ -15,7 +15,6 @@ WITH trends_facts AS (
         store_name,
         city,
         state,
-        region,
 
         -- Métriques de vente depuis intermediate
         total_orders,
@@ -78,7 +77,6 @@ SELECT
     store_name,
     city,
     state,
-    region,
     total_orders,
     unique_customers,
     total_items_sold,

@@ -14,13 +14,16 @@ WITH sales_summary AS (
         -- Dimensions géographiques
         s.city,
         s.state,
-        s.region,
 
         -- Dimensions produit
-        p.brand_name,
-        p.category_name,
-        p.price_tier,
-        p.product_category_group,
+        b.brand_name,
+        c.category_name,
+        CASE
+            WHEN p.list_price >= 5000 THEN 'Premium'
+            WHEN p.list_price >= 2000 THEN 'High'
+            WHEN p.list_price >= 500 THEN 'Medium'
+            ELSE 'Entry'
+        END as price_tier,
 
         -- Métriques agrégées
         count(DISTINCT o.order_id) as total_orders,
@@ -43,6 +46,8 @@ WITH sales_summary AS (
     JOIN {{ ref('stg_bikelocal__order_items') }} oi ON o.order_id = oi.order_id
     JOIN {{ ref('stg_bike_shop__stores') }} s ON o.store_id = s.store_id
     JOIN {{ ref('stg_bike_shop__products') }} p ON oi.product_id = p.product_id
+    LEFT JOIN {{ ref('stg_bike_shop__brands') }} b ON p.brand_id = b.brand_id
+    LEFT JOIN {{ ref('stg_bike_shop__categories') }} c ON p.category_id = c.category_id
 
     GROUP BY
         toYear(order_date),
@@ -51,11 +56,14 @@ WITH sales_summary AS (
         toQuarter(order_date),
         s.city,
         s.state,
-        s.region,
-        p.brand_name,
-        p.category_name,
-        p.price_tier,
-        p.product_category_group
+        b.brand_name,
+        c.category_name,
+        CASE
+            WHEN p.list_price >= 5000 THEN 'Premium'
+            WHEN p.list_price >= 2000 THEN 'High'
+            WHEN p.list_price >= 500 THEN 'Medium'
+            ELSE 'Entry'
+        END
 )
 
 SELECT
@@ -65,11 +73,9 @@ SELECT
     quarter,
     city,
     state,
-    region,
     brand_name,
     category_name,
     price_tier,
-    product_category_group,
     total_orders,
     unique_customers,
     total_items_sold,
@@ -82,4 +88,4 @@ SELECT
     created_at,
     created_by
 FROM sales_summary
-ORDER BY year, month, region, category_name
+ORDER BY year, month, category_name

@@ -2,95 +2,61 @@
     materialized='table'
 ) }}
 
-WITH stock_alerts_facts AS (
-    SELECT
-        -- Dimensions
-        store_id,
-        store_name,
-        product_id,
-        product_name,
-        brand_name,
-        category_name,
-        current_stock,
-        list_price,
-
-        -- Métriques calculées
-        (current_stock * list_price) as stock_value,
-        CASE
-            WHEN current_stock = 0 THEN 'Out of Stock'
-            WHEN current_stock <= 5 THEN 'Critical'
-            WHEN current_stock <= 15 THEN 'Low'
-            ELSE 'Normal'
-        END as stock_status,
-
-        -- Métriques d'optimisation depuis intermediate
-        iso.monthly_sales_velocity,
-        iso.months_of_stock_coverage,
-        iso.stock_optimization_status,
-        iso.revenue_impact,
-        iso.recommendation,
-
-        -- Classifications d'urgence
-        CASE
-            WHEN current_stock = 0 THEN 'Immediate Action Required'
-            WHEN current_stock <= 5 THEN 'Urgent Restock'
-            WHEN current_stock <= 15 THEN 'Restock Soon'
-            WHEN iso.stock_optimization_status = 'Understocked' THEN 'Optimize Stock'
-            ELSE 'Monitor'
-        END as action_priority,
-
-        CASE
-            WHEN (current_stock * list_price) >= 10000 THEN 'High Value Stock'
-            WHEN (current_stock * list_price) >= 5000 THEN 'Medium Value Stock'
-            WHEN (current_stock * list_price) >= 1000 THEN 'Low Value Stock'
-            ELSE 'Very Low Value Stock'
-        END as stock_value_category,
-
-        -- Métriques temporelles
-        CASE
-            WHEN iso.monthly_sales_velocity >= 20 THEN 'Fast Moving'
-            WHEN iso.monthly_sales_velocity >= 10 THEN 'Medium Moving'
-            WHEN iso.monthly_sales_velocity >= 5 THEN 'Slow Moving'
-            ELSE 'Very Slow Moving'
-        END as product_velocity_category,
-
-        -- Métadonnées
-        now() as created_at,
-        'dbt' as created_by
-
-    FROM {{ ref('int_inventory__low_stock_alerts') }} lsa
-    LEFT JOIN {{ ref('int_inventory__stock_optimization') }} iso
-        ON lsa.store_id = iso.store_id AND lsa.product_id = iso.product_id
-)
-
 SELECT
-    store_id,
-    store_name,
-    product_id,
-    product_name,
-    brand_name,
-    category_name,
-    current_stock,
-    list_price,
-    stock_value,
-    stock_status,
-    monthly_sales_velocity,
-    months_of_stock_coverage,
-    stock_optimization_status,
-    revenue_impact,
-    recommendation,
-    action_priority,
-    stock_value_category,
-    product_velocity_category,
-    created_at,
-    created_by
-FROM stock_alerts_facts
-ORDER BY
-    CASE action_priority
-        WHEN 'Immediate Action Required' THEN 1
-        WHEN 'Urgent Restock' THEN 2
-        WHEN 'Restock Soon' THEN 3
-        WHEN 'Optimize Stock' THEN 4
-        ELSE 5
-    END,
-    stock_value DESC
+    st.store_id,
+    s.store_name,
+    st.product_id,
+    p.product_name,
+    b.brand_name,
+    c.category_name,
+    st.quantity as current_stock,
+    p.list_price,
+
+    -- Métriques calculées
+    (st.quantity * p.list_price) as stock_value,
+    CASE
+        WHEN st.quantity = 0 THEN 'Out of Stock'
+        WHEN st.quantity <= 5 THEN 'Critical'
+        WHEN st.quantity <= 15 THEN 'Low'
+        ELSE 'Normal'
+    END as stock_status,
+
+    -- Métriques d'optimisation (valeurs par défaut)
+    0 as monthly_sales_velocity,
+    0 as months_of_stock_coverage,
+    'Unknown' as stock_optimization_status,
+    'Unknown' as revenue_impact,
+    'No recommendation' as recommendation,
+
+    -- Classifications d'urgence
+    CASE
+        WHEN st.quantity = 0 THEN 'Immediate Action Required'
+        WHEN st.quantity <= 5 THEN 'Urgent Restock'
+        WHEN st.quantity <= 15 THEN 'Restock Soon'
+        ELSE 'Monitor'
+    END as action_priority,
+
+    CASE
+        WHEN (st.quantity * p.list_price) >= 10000 THEN 'High Value Stock'
+        WHEN (st.quantity * p.list_price) >= 5000 THEN 'Medium Value Stock'
+        WHEN (st.quantity * p.list_price) >= 1000 THEN 'Low Value Stock'
+        ELSE 'Very Low Value Stock'
+    END as stock_value_category,
+
+    -- Métriques temporelles
+    CASE
+        WHEN coalesce(st.quantity, 0) >= 20 THEN 'Fast Moving'
+        WHEN coalesce(st.quantity, 0) >= 10 THEN 'Medium Moving'
+        WHEN coalesce(st.quantity, 0) >= 5 THEN 'Slow Moving'
+        ELSE 'Very Slow Moving'
+    END as product_velocity_category,
+
+    -- Métadonnées
+    now() as created_at,
+    'dbt' as created_by
+
+FROM {{ ref('stg_bike_shop__stocks') }} st
+LEFT JOIN {{ ref('stg_bike_shop__products') }} p ON st.product_id = p.product_id
+LEFT JOIN {{ ref('stg_bike_shop__brands') }} b ON p.brand_id = b.brand_id
+LEFT JOIN {{ ref('stg_bike_shop__categories') }} c ON p.category_id = c.category_id
+LEFT JOIN {{ ref('stg_bike_shop__stores') }} s ON st.store_id = s.store_id

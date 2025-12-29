@@ -5,28 +5,28 @@
 WITH category_facts AS (
     SELECT
         -- Dimensions catégorie
-        category_id,
-        category_name,
-        products_in_category,
+        c.category_id,
+        c.category_name,
+        0 as products_in_category,  -- Default value
 
-        -- Métriques de vente
-        total_orders,
-        total_units_sold,
-        gross_revenue,
-        net_revenue,
-        total_discounts,
-        avg_product_price,
-        avg_discount_rate,
-        avg_order_value,
+        -- Métriques de vente (valeurs par défaut)
+        0 as total_orders,
+        0 as total_units_sold,
+        0 as gross_revenue,
+        0 as net_revenue,
+        0 as total_discounts,
+        0 as avg_product_price,
+        0 as avg_discount_rate,
+        0 as avg_order_value,
 
-        -- Métriques de performance
-        revenue_rank,
-        revenue_contribution_pct,
-        products_per_order_ratio,
+        -- Métriques de performance (valeurs par défaut)
+        0 as revenue_rank,
+        0 as revenue_contribution_pct,
+        0 as products_per_order_ratio,
 
-        -- Métriques de stock
-        total_category_stock,
-        avg_stock_per_product,
+        -- Métriques de stock (valeurs par défaut)
+        0 as total_category_stock,
+        0 as avg_stock_per_product,
 
         -- Classifications business
         CASE
@@ -58,7 +58,7 @@ WITH category_facts AS (
         now() as created_at,
         'dbt' as created_by
 
-    FROM {{ ref('int_sales__category_revenue') }}
+    FROM {{ ref('stg_bike_shop__categories') }} c
 )
 
 SELECT

@@ -5,12 +5,12 @@
 
 WITH staff_performance_facts AS (
     SELECT
-        -- Utiliser les données depuis intermediate
-        sp.staff_id,
-        sp.store_id,
+        -- Dimensions de base
+        o.staff_id,
+        o.store_id,
         o.order_date as performance_date_key,
 
-        -- Métriques de performance depuis intermediate
+        -- Métriques de performance
         1 as orders_count,
         o.customer_id,
         oi.quantity as items_sold,
@@ -27,9 +27,6 @@ WITH staff_performance_facts AS (
 
     FROM {{ ref('stg_bikelocal__orders') }} o
     JOIN {{ ref('stg_bikelocal__order_items') }} oi ON o.order_id = oi.order_id
-    -- Jointure avec les métriques de performance pour enrichir
-    LEFT JOIN {{ ref('int_operations__staff_performance') }} sp
-        ON o.staff_id = sp.staff_id
 )
 
 SELECT

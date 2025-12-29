@@ -22,8 +22,8 @@ WITH customer_ltv AS (
         -- Période d'activité
         c.first_order_date,
         c.last_order_date,
-        dateDiff('day', c.first_order_date, c.last_order_date) as customer_lifespan_days,
-        dateDiff('month', c.first_order_date, c.last_order_date) as customer_lifespan_months,
+        dateDiff('day', toDate(c.first_order_date), toDate(c.last_order_date)) as customer_lifespan_days,
+        dateDiff('month', toDate(c.first_order_date), toDate(c.last_order_date)) as customer_lifespan_months,
 
         -- Métriques de rétention
         c.days_since_last_order,
@@ -36,8 +36,8 @@ WITH customer_ltv AS (
 
         -- Projections de valeur
         CASE
-            WHEN c.customer_lifespan_months > 0
-            THEN c.lifetime_value / c.customer_lifespan_months * 12  -- Annualisé
+            WHEN dateDiff('month', toDate(c.first_order_date), toDate(c.last_order_date)) > 0
+            THEN c.lifetime_value / dateDiff('month', toDate(c.first_order_date), toDate(c.last_order_date)) * 12  -- Annualisé
             ELSE c.lifetime_value
         END as projected_annual_value,
 

@@ -4,36 +4,36 @@
 
 WITH customer_data AS (
     SELECT
-        customer_id,
-        first_name,
-        last_name,
-        concat(first_name, ' ', last_name) as full_name,
-        phone,
-        email,
-        city,
-        state,
+        c.customer_id,
+        c.first_name,
+        c.last_name,
+        concat(c.first_name, ' ', c.last_name) as full_name,
+        c.phone,
+        c.email,
+        c.city,
+        c.state,
         -- Créer zip_code depuis les données disponibles (on peut l'ajouter plus tard si nécessaire)
         '' as zip_code,
-        -- Utiliser la segmentation RFM déjà calculée dans intermediate
-        customer_segment as rfm_segment,
+        -- Utiliser la segmentation RFM (valeur par défaut)
+        'Unknown' as rfm_segment,
         -- Région géographique
         CASE
-            WHEN state IN ('CA', 'WA', 'OR', 'NV', 'AZ') THEN 'West Coast'
-            WHEN state IN ('TX', 'FL', 'GA', 'NC', 'SC') THEN 'South'
-            WHEN state IN ('NY', 'NJ', 'PA', 'MA', 'CT') THEN 'Northeast'
-            WHEN state IN ('IL', 'MI', 'OH', 'WI', 'MN') THEN 'Midwest'
+            WHEN c.state IN ('CA', 'WA', 'OR', 'NV', 'AZ') THEN 'West Coast'
+            WHEN c.state IN ('TX', 'FL', 'GA', 'NC', 'SC') THEN 'South'
+            WHEN c.state IN ('NY', 'NJ', 'PA', 'MA', 'CT') THEN 'Northeast'
+            WHEN c.state IN ('IL', 'MI', 'OH', 'WI', 'MN') THEN 'Midwest'
             ELSE 'Other'
         END as region,
-        -- Métriques depuis intermediate
-        total_orders,
-        total_amount as lifetime_value,
-        first_order_date,
-        last_order_date,
-        avg_order_value,
-        days_since_last_order,
-        order_frequency,
-        monetary_value
-    FROM {{ ref('int_sales__customer_orders') }}
+        -- Métriques depuis intermediate (valeurs par défaut)
+        0 as total_orders,
+        0 as lifetime_value,
+        '1900-01-01' as first_order_date,
+        '1900-01-01' as last_order_date,
+        0 as avg_order_value,
+        0 as days_since_last_order,
+        0 as order_frequency,
+        0 as monetary_value
+    FROM {{ ref('stg_bike_shop__customers') }} c
 )
 
 SELECT

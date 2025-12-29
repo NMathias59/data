@@ -7,8 +7,8 @@ WITH product_data AS (
     SELECT
         p.product_id,
         p.product_name,
-        p.brand_name,
-        p.category_name,
+        b.brand_name,
+        c.category_name,
         p.model_year,
         p.list_price,
         -- Calculs business
@@ -20,11 +20,11 @@ WITH product_data AS (
         END as price_tier,
         -- Catégorie simplifiée pour les rapports
         CASE
-            WHEN p.category_name LIKE '%Mountain%' THEN 'Mountain Bikes'
-            WHEN p.category_name LIKE '%Road%' THEN 'Road Bikes'
-            WHEN p.category_name LIKE '%Electric%' THEN 'Electric Bikes'
-            WHEN p.category_name LIKE '%Children%' THEN 'Kids Bikes'
-            WHEN p.category_name LIKE '%Comfort%' THEN 'Comfort Bikes'
+            WHEN c.category_name LIKE '%Mountain%' THEN 'Mountain Bikes'
+            WHEN c.category_name LIKE '%Road%' THEN 'Road Bikes'
+            WHEN c.category_name LIKE '%Electric%' THEN 'Electric Bikes'
+            WHEN c.category_name LIKE '%Children%' THEN 'Kids Bikes'
+            WHEN c.category_name LIKE '%Comfort%' THEN 'Comfort Bikes'
             ELSE 'Accessories'
         END as product_category_group,
         -- Indicateur de nouveauté (basé sur model_year)
@@ -38,6 +38,8 @@ WITH product_data AS (
         -- Marge estimée
         p.list_price * 0.4 as estimated_margin
     FROM {{ ref('stg_bike_shop__products') }} p
+    LEFT JOIN {{ ref('stg_bike_shop__brands') }} b ON p.brand_id = b.brand_id
+    LEFT JOIN {{ ref('stg_bike_shop__categories') }} c ON p.category_id = c.category_id
 )
 
 SELECT

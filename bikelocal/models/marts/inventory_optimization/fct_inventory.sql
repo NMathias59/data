@@ -3,61 +3,40 @@
     
 ) }}
 
-WITH inventory_facts AS (
-    SELECT
-        -- Utiliser les données agrégées depuis intermediate
-        ips.store_id,
-        ips.product_id,
-        ips.total_stock_quantity as current_stock,
-
-        -- Informations produit depuis intermediate
-        ips.product_name,
-        ips.brand_name,
-        ips.category_name,
-        ips.list_price,
-
-        -- Métriques calculées
-        (ips.total_stock_quantity * ips.list_price) as stock_value,
-        CASE
-            WHEN ips.total_stock_quantity = 0 THEN 'Out of Stock'
-            WHEN ips.total_stock_quantity <= 5 THEN 'Critical'
-            WHEN ips.total_stock_quantity <= 15 THEN 'Low'
-            WHEN ips.total_stock_quantity <= 50 THEN 'Normal'
-            ELSE 'High'
-        END as stock_status,
-
-        -- Métriques d'optimisation depuis intermediate
-        iso.monthly_sales_velocity,
-        iso.months_of_stock_coverage,
-        iso.stock_optimization_status,
-        iso.revenue_impact,
-        iso.recommendation,
-
-        -- Métadonnées
-        now() as created_at,
-        'dbt' as created_by
-
-    FROM {{ ref('int_inventory__product_stock') }} ips
-    LEFT JOIN {{ ref('int_inventory__stock_optimization') }} iso
-        ON ips.store_id = iso.store_id AND ips.product_id = iso.product_id
-)
-
 SELECT
-    store_id,
-    product_id,
-    current_stock,
-    product_name,
-    brand_name,
-    category_name,
-    list_price,
-    stock_value,
-    stock_status,
-    monthly_sales_velocity,
-    months_of_stock_coverage,
-    stock_optimization_status,
-    revenue_impact,
-    recommendation,
-    created_at,
-    created_by
-FROM inventory_facts
-ORDER BY store_id, product_id
+    -- Données de stock de base
+    st.store_id,
+    st.product_id,
+    st.quantity as current_stock,
+
+    -- Informations produit
+    p.product_name,
+    b.brand_name,
+    c.category_name,
+    p.list_price,
+
+    -- Métriques calculées
+    (st.quantity * p.list_price) as stock_value,
+    CASE
+        WHEN st.quantity = 0 THEN 'Out of Stock'
+        WHEN st.quantity <= 5 THEN 'Critical'
+        WHEN st.quantity <= 15 THEN 'Low'
+        WHEN st.quantity <= 50 THEN 'Normal'
+        ELSE 'High'
+    END as stock_status,
+
+    -- Métriques d'optimisation (valeurs par défaut pour le moment)
+    0 as monthly_sales_velocity,
+    0 as months_of_stock_coverage,
+    'Unknown' as stock_optimization_status,
+    'Unknown' as revenue_impact,
+    'No recommendation' as recommendation,
+
+    -- Métadonnées
+    now() as created_at,
+    'dbt' as created_by
+
+FROM {{ ref('stg_bike_shop__stocks') }} st
+LEFT JOIN {{ ref('stg_bike_shop__products') }} p ON st.product_id = p.product_id
+LEFT JOIN {{ ref('stg_bike_shop__brands') }} b ON p.brand_id = b.brand_id
+LEFT JOIN {{ ref('stg_bike_shop__categories') }} c ON p.category_id = c.category_id

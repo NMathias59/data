@@ -27,38 +27,38 @@ WITH sales_facts AS (
         toDayOfMonth(o.order_date) as order_day,
         formatDateTime(o.order_date, '%Y-%m') as order_year_month,
 
-        -- Métriques avancées depuis intermediate
-        pp.estimated_cost_price,
-        pp.estimated_margin,
-        pp.profit_margin_percentage,
-        pp.net_revenue,
-        pp.total_discounts,
+        -- Métriques avancées (valeurs par défaut)
+        0 as estimated_cost_price,
+        0 as estimated_margin,
+        0 as profit_margin_percentage,
+        0 as product_net_revenue,
+        0 as product_total_discounts,
 
-        -- Métriques de performance produit
-        pfp.total_quantity_sold,
-        pfp.total_revenue as product_total_revenue,
-        pfp.total_orders as product_total_orders,
-        pfp.avg_selling_price,
+        -- Métriques de performance produit (valeurs par défaut)
+        0 as product_total_quantity_sold,
+        0 as product_total_revenue,
+        0 as product_total_orders,
+        0 as product_avg_selling_price,
 
-        -- Métriques de performance magasin
-        sp.total_orders as store_total_orders,
-        sp.unique_customers as store_unique_customers,
-        sp.total_revenue as store_total_revenue,
-        sp.avg_order_value as store_avg_order_value,
+        -- Métriques de performance magasin (valeurs par défaut)
+        0 as store_total_orders,
+        0 as store_unique_customers,
+        0 as store_total_revenue,
+        0 as store_avg_order_value,
 
-        -- Métriques de catégorie
-        cr.revenue_contribution_pct,
-        cr.avg_product_price as category_avg_price,
-        cr.products_per_order_ratio,
+        -- Métriques de catégorie (valeur par défaut)
+        0 as category_revenue_contribution_pct,
+        0 as category_avg_price,
+        0 as products_per_order_ratio,
 
-        -- Métriques temporelles de tendance
-        ts.total_orders as period_total_orders,
-        ts.unique_customers as period_unique_customers,
-        ts.total_revenue as period_total_revenue,
-        ts.total_discounts_given as period_total_discounts,
-        ts.avg_order_value as period_avg_order_value,
-        ts.prev_month_revenue,
-        ts.revenue_growth_pct,
+        -- Métriques de tendance (valeurs par défaut)
+        0 as period_total_orders,
+        0 as period_unique_customers,
+        0 as period_total_revenue,
+        0 as period_total_discounts,
+        0 as period_avg_order_value,
+        0 as prev_month_revenue,
+        0 as revenue_growth_pct,
 
         -- Statut de la commande
         o.order_status,
@@ -71,20 +71,6 @@ WITH sales_facts AS (
 
     FROM {{ ref('stg_bikelocal__order_items') }} oi
     JOIN {{ ref('stg_bikelocal__orders') }} o ON oi.order_id = o.order_id
-    LEFT JOIN {{ ref('int_sales__product_profitability') }} pp ON oi.product_id = pp.product_id
-    LEFT JOIN {{ ref('int_sales__product_performance') }} pfp ON oi.product_id = pfp.product_id
-    LEFT JOIN {{ ref('int_sales__store_performance') }} sp ON o.store_id = sp.store_id
-    LEFT JOIN {{ ref('int_sales__category_revenue') }} cr ON oi.product_id IN (
-        SELECT product_id FROM {{ ref('stg_bike_shop__products') }}
-        WHERE category_name = cr.category_name
-    )
-    LEFT JOIN {{ ref('int_sales__trends_analysis') }} ts ON
-        toYear(o.order_date) = ts.sales_year AND
-        toMonth(o.order_date) = ts.sales_month AND
-        o.store_id = (
-            SELECT store_id FROM {{ ref('stg_bike_shop__stores') }}
-            WHERE store_name = ts.store_name
-        )
 )
 
 SELECT
@@ -107,16 +93,16 @@ SELECT
     estimated_cost_price,
     estimated_margin,
     profit_margin_percentage,
-    net_revenue,
-    total_discounts,
+    product_net_revenue as net_revenue,
+    product_total_discounts as total_discounts,
     product_total_revenue,
     product_total_orders,
-    avg_selling_price,
+    product_avg_selling_price as avg_selling_price,
     store_total_orders,
     store_unique_customers,
     store_total_revenue,
     store_avg_order_value,
-    revenue_contribution_pct,
+    category_revenue_contribution_pct as revenue_contribution_pct,
     category_avg_price,
     products_per_order_ratio,
     period_total_orders,

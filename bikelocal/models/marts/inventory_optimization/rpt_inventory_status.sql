@@ -5,48 +5,50 @@
 
 WITH inventory_status AS (
     SELECT
-        -- Dimensions magasin depuis intermediate
-        ips.store_name,
-        ips.city,
-        ips.state,
-        ips.region,
+        -- Dimensions magasin
+        s.store_name,
+        s.city,
+        s.state,
 
-        -- Dimensions produit depuis intermediate
-        ips.product_name,
-        ips.brand_name,
-        ips.category_name,
-        ips.price_tier,
-
-        -- Métriques de stock depuis intermediate
-        ips.total_stock_quantity as current_stock,
-        (ips.total_stock_quantity * ips.list_price) as stock_value,
+        -- Dimensions produit
+        p.product_name,
+        b.brand_name,
+        c.category_name,
         CASE
-            WHEN ips.total_stock_quantity = 0 THEN 'Out of Stock'
-            WHEN ips.total_stock_quantity <= 5 THEN 'Critical'
-            WHEN ips.total_stock_quantity <= 15 THEN 'Low'
-            WHEN ips.total_stock_quantity <= 50 THEN 'Normal'
+            WHEN p.list_price >= 5000 THEN 'Premium'
+            WHEN p.list_price >= 2000 THEN 'High'
+            WHEN p.list_price >= 500 THEN 'Medium'
+            ELSE 'Entry'
+        END as price_tier,
+
+        -- Métriques de stock
+        st.quantity as current_stock,
+        (st.quantity * p.list_price) as stock_value,
+        CASE
+            WHEN st.quantity = 0 THEN 'Out of Stock'
+            WHEN st.quantity <= 5 THEN 'Critical'
+            WHEN st.quantity <= 15 THEN 'Low'
+            WHEN st.quantity <= 50 THEN 'Normal'
             ELSE 'High'
         END as stock_status,
 
-        -- Métriques d'optimisation depuis intermediate
-        iso.monthly_sales_velocity,
-        iso.months_of_stock_coverage,
-        iso.stock_optimization_status,
-        iso.revenue_impact,
-        iso.recommendation,
+        -- Métriques d'optimisation (valeurs par défaut)
+        0 as monthly_sales_velocity,
+        0 as months_of_stock_coverage,
+        'Unknown' as stock_optimization_status,
+        'Unknown' as revenue_impact,
+        'No recommendation' as recommendation,
 
         -- Classifications business
         CASE
-            WHEN ips.total_stock_quantity = 0 OR ips.total_stock_quantity <= 5 THEN 'Action Required'
-            WHEN iso.stock_optimization_status = 'Overstocked' THEN 'Review Stock'
-            WHEN iso.stock_optimization_status = 'Understocked' THEN 'Restock Needed'
+            WHEN st.quantity = 0 OR st.quantity <= 5 THEN 'Action Required'
             ELSE 'Optimal'
         END as inventory_action_priority,
 
         -- Valeur business
         CASE
-            WHEN (ips.total_stock_quantity * ips.list_price) >= 50000 THEN 'High Value'
-            WHEN (ips.total_stock_quantity * ips.list_price) >= 10000 THEN 'Medium Value'
+            WHEN (st.quantity * p.list_price) >= 50000 THEN 'High Value'
+            WHEN (st.quantity * p.list_price) >= 10000 THEN 'Medium Value'
             ELSE 'Low Value'
         END as stock_value_tier,
 
@@ -54,16 +56,17 @@ WITH inventory_status AS (
         now() as created_at,
         'dbt' as created_by
 
-    FROM {{ ref('int_inventory__product_stock') }} ips
-    LEFT JOIN {{ ref('int_inventory__stock_optimization') }} iso
-        ON ips.store_id = iso.store_id AND ips.product_id = iso.product_id
+    FROM {{ ref('stg_bike_shop__stocks') }} st
+    LEFT JOIN {{ ref('stg_bike_shop__stores') }} s ON st.store_id = s.store_id
+    LEFT JOIN {{ ref('stg_bike_shop__products') }} p ON st.product_id = p.product_id
+    LEFT JOIN {{ ref('stg_bike_shop__brands') }} b ON p.brand_id = b.brand_id
+    LEFT JOIN {{ ref('stg_bike_shop__categories') }} c ON p.category_id = c.category_id
 )
 
 SELECT
     store_name,
     city,
     state,
-    region,
     product_name,
     brand_name,
     category_name,
