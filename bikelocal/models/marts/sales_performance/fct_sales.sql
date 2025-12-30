@@ -122,7 +122,7 @@ SELECT
     created_at,
     created_by
 {% if is_incremental() %}
-    WITH latest AS (SELECT coalesce(max(order_date_key), '1900-01-01') AS max_order_date FROM {{ this }})
+    , latest AS (SELECT coalesce(max(order_date_key), '1900-01-01') AS max_order_date FROM {{ this }})
     SELECT
         order_id,
         customer_id,
