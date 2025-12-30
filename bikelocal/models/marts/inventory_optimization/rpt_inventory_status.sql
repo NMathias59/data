@@ -4,62 +4,86 @@
 
 WITH inventory_status AS (
     SELECT
-        -- Dimensions magasin
-        s.store_name,
-        s.city,
-        s.state,
-
-        -- Dimensions produit
-        p.product_name,
-        b.brand_name,
-        c.category_name,
+        ii.store_name,
+        st.city,
+        st.state,
+        ii.product_name,
+        ii.brand_name,
+        ii.category_name,
+        -- Compute price tier from the intermediate list_price
         CASE
-            WHEN p.list_price >= 5000 THEN 'Premium'
-            WHEN p.list_price >= 2000 THEN 'High'
-            WHEN p.list_price >= 500 THEN 'Medium'
+            WHEN ii.list_price >= 5000 THEN 'Premium'
+            WHEN ii.list_price >= 2000 THEN 'High'
+            WHEN ii.list_price >= 500 THEN 'Medium'
             ELSE 'Entry'
         END as price_tier,
-
-        -- Métriques de stock
-        st.quantity as current_stock,
-        (st.quantity * p.list_price) as stock_value,
+        ii.current_stock,
+        ii.stock_value,
         CASE
-            WHEN st.quantity = 0 THEN 'Out of Stock'
-            WHEN st.quantity <= 5 THEN 'Critical'
-            WHEN st.quantity <= 15 THEN 'Low'
-            WHEN st.quantity <= 50 THEN 'Normal'
+            WHEN ii.current_stock = 0 THEN 'Out of Stock'
+            WHEN ii.current_stock <= 5 THEN 'Critical'
+            WHEN ii.current_stock <= 15 THEN 'Low'
+            WHEN ii.current_stock <= 50 THEN 'Normal'
             ELSE 'High'
         END as stock_status,
-
-        -- Métriques d'optimisation (valeurs par défaut)
-        0 as monthly_sales_velocity,
-        0 as months_of_stock_coverage,
-        'Unknown' as stock_optimization_status,
-        'Unknown' as revenue_impact,
-        'No recommendation' as recommendation,
-
-        -- Classifications business
-        CASE
-            WHEN st.quantity = 0 OR st.quantity <= 5 THEN 'Action Required'
-            ELSE 'Optimal'
-        END as inventory_action_priority,
-
-        -- Valeur business
-        CASE
-            WHEN (st.quantity * p.list_price) >= 50000 THEN 'High Value'
-            WHEN (st.quantity * p.list_price) >= 10000 THEN 'Medium Value'
-            ELSE 'Low Value'
-        END as stock_value_tier,
-
-        -- Métadonnées
+        ii.monthly_sales_velocity,
+        ii.months_of_stock_coverage,
+        ii.stock_optimization_status,
+        ii.revenue_impact,
+        ii.recommendation,
+        CASE WHEN ii.current_stock = 0 OR ii.current_stock <= 5 THEN 'Action Required' ELSE 'Optimal' END as inventory_action_priority,
+        CASE WHEN ii.stock_value >= 50000 THEN 'High Value' WHEN ii.stock_value >= 10000 THEN 'Medium Value' ELSE 'Low Value' END as stock_value_tier,
         now() as created_at,
         'dbt' as created_by
-
-    FROM {{ ref('stg_bike_shop__stocks') }} st
-    LEFT JOIN {{ ref('stg_bike_shop__stores') }} s ON st.store_id = s.store_id
-    LEFT JOIN {{ ref('stg_bike_shop__products') }} p ON st.product_id = p.product_id
-    LEFT JOIN {{ ref('stg_bike_shop__brands') }} b ON p.brand_id = b.brand_id
-    LEFT JOIN {{ ref('stg_bike_shop__categories') }} c ON p.category_id = c.category_id
+    FROM {{ ref('int_inventory__stock_optimization') }} ii
+    LEFT JOIN {{ ref('stg_bike_shop__stores') }} st ON ii.store_id = st.store_id
+),
+inventory_agg AS (
+    SELECT
+        grouped.store_name,
+        grouped.city,
+        grouped.state,
+        grouped.product_name,
+        grouped.brand_name,
+        grouped.category_name,
+        grouped.price_tier,
+        grouped.current_stock,
+        grouped.stock_value,
+        CASE
+            WHEN grouped.current_stock = 0 THEN 'Out of Stock'
+            WHEN grouped.current_stock <= 5 THEN 'Critical'
+            WHEN grouped.current_stock <= 15 THEN 'Low'
+            WHEN grouped.current_stock <= 50 THEN 'Normal'
+            ELSE 'High'
+        END as stock_status,
+        grouped.monthly_sales_velocity,
+        grouped.months_of_stock_coverage,
+        grouped.stock_optimization_status,
+        grouped.revenue_impact,
+        grouped.recommendation,
+        CASE WHEN grouped.current_stock = 0 OR grouped.current_stock <= 5 THEN 'Action Required' ELSE 'Optimal' END as inventory_action_priority,
+        CASE WHEN grouped.stock_value >= 50000 THEN 'High Value' WHEN grouped.stock_value >= 10000 THEN 'Medium Value' ELSE 'Low Value' END as stock_value_tier,
+        now() as created_at,
+        'dbt' as created_by
+    FROM (
+        SELECT
+            store_name,
+            any(city) as city,
+            any(state) as state,
+            product_name,
+            any(brand_name) as brand_name,
+            any(category_name) as category_name,
+            any(price_tier) as price_tier,
+            sum(current_stock) as current_stock,
+            sum(stock_value) as stock_value,
+            sum(monthly_sales_velocity) as monthly_sales_velocity,
+            max(months_of_stock_coverage) as months_of_stock_coverage,
+            any(stock_optimization_status) as stock_optimization_status,
+            any(revenue_impact) as revenue_impact,
+            any(recommendation) as recommendation
+        FROM inventory_status
+        GROUP BY store_name, product_name
+    ) AS grouped
 )
 
 {% if is_incremental() %}
@@ -85,7 +109,7 @@ WITH inventory_status AS (
         i.stock_value_tier,
         i.created_at,
         i.created_by
-    FROM inventory_status i
+    FROM inventory_agg i
     LEFT JOIN existing e ON e.store_name = i.store_name AND e.product_name = i.product_name
     WHERE e.store_name IS NULL
     ORDER BY stock_value DESC, store_name, product_name
@@ -110,6 +134,6 @@ WITH inventory_status AS (
         stock_value_tier,
         created_at,
         created_by
-    FROM inventory_status
+    FROM inventory_agg
     ORDER BY stock_value DESC, store_name, product_name
 {% endif %}

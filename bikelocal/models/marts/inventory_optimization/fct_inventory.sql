@@ -8,39 +8,39 @@
 ) }}
 
 SELECT
-    -- Données de stock de base
+    -- Données de stock de base (issu de l'intermédiaire)
     st.store_id,
     st.product_id,
-    st.quantity as current_stock,
+    st.current_stock as current_stock,
 
-    -- Informations produit
-    p.product_name,
-    b.brand_name,
-    c.category_name,
-    p.list_price,
+    -- Informations produit (déjà présentes dans l'int)
+    st.product_name,
+    st.brand_name,
+    st.category_name,
+    st.list_price,
 
     -- Métriques calculées
-    (st.quantity * p.list_price) as stock_value,
+    (st.current_stock * st.list_price) as stock_value,
     CASE
-        WHEN st.quantity = 0 THEN 'Out of Stock'
-        WHEN st.quantity <= 5 THEN 'Critical'
-        WHEN st.quantity <= 15 THEN 'Low'
-        WHEN st.quantity <= 50 THEN 'Normal'
+        WHEN st.current_stock = 0 THEN 'Out of Stock'
+        WHEN st.current_stock <= 5 THEN 'Critical'
+        WHEN st.current_stock <= 15 THEN 'Low'
+        WHEN st.current_stock <= 50 THEN 'Normal'
         ELSE 'High'
     END as stock_status,
 
-    -- Métriques d'optimisation (valeurs par défaut pour le moment)
-    0 as monthly_sales_velocity,
-    0 as months_of_stock_coverage,
-    'Unknown' as stock_optimization_status,
-    'Unknown' as revenue_impact,
-    'No recommendation' as recommendation,
+    -- Métriques d'optimisation (issu de l'int quand disponibles)
+    st.monthly_sales_velocity as monthly_sales_velocity,
+    st.months_of_stock_coverage as months_of_stock_coverage,
+    st.stock_optimization_status as stock_optimization_status,
+    st.revenue_impact as revenue_impact,
+    st.recommendation as recommendation,
 
     -- Métadonnées
     now() as created_at,
     'dbt' as created_by
 
-FROM {{ ref('stg_bike_shop__stocks') }} st
+FROM {{ ref('int_inventory__stock_optimization') }} st
 LEFT JOIN {{ ref('stg_bike_shop__products') }} p ON st.product_id = p.product_id
 LEFT JOIN {{ ref('stg_bike_shop__brands') }} b ON p.brand_id = b.brand_id
 LEFT JOIN {{ ref('stg_bike_shop__categories') }} c ON p.category_id = c.category_id
