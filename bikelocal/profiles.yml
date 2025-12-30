@@ -3,20 +3,20 @@
 # Ou conservez ce fichier dans le projet et exportez la variable DBT_PROFILES_DIR si nécessaire.
 
 bikelocal:
-  target: clickhouse
+  target: "{{ env_var('DBT_TARGET', 'clickhouse') }}"
   outputs:
     clickhouse:
       type: clickhouse
       threads: 4
-      # Utilise des variables d'environnement pour éviter de stocker des secrets en clair
-      host: host.docker.internal
-      port: 8123
-      user: airbyte_ch
-      password: f!LVd7jzgmBCDwSZp9yu
-      database: localbike_raw
-      schema: localbike_raw
-      # secure: true  # si vous utilisez TLS/HTTPS
-      # verify: true  # vérification du certificat (si secure=true)
+      # Reads connection values from environment variables (use .env or export vars)
+      host: "{{ env_var('CLICKHOUSE_HOST', 'host.docker.internal') }}"
+      port: "{{ env_var('CLICKHOUSE_PORT', '8123') }}"
+      user: "{{ env_var('CLICKHOUSE_USER', 'default') }}"
+      password: "{{ env_var('CLICKHOUSE_PASSWORD', '') }}"
+      database: "{{ env_var('CLICKHOUSE_DATABASE', 'localbike_raw') }}"
+      schema: "{{ env_var('CLICKHOUSE_DATABASE', 'localbike_raw') }}"
+      secure: false
+      protocol: http
 
 # Exemples d'utilisation des variables d'environnement (PowerShell)
 # $env:CLICKHOUSE_HOST='host.docker.internal'
