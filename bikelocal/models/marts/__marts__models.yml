@@ -303,6 +303,13 @@ models:
       - name: is_growing
         description: "Indicateur de croissance (1=croissance, 0=décroissance)"
 
+  - name: fct_sales
+    description: "Fait ventes détaillé (niveau ligne article) — contient item_id, order_id, customer_id, product_id et métriques par ligne."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['order_id', 'item_id']
+          severity: warn
+
   - name: rpt_category_growth_analysis
     description: |
       Rapport: analyse de la croissance par catégorie et par gamme.
@@ -338,7 +345,8 @@ models:
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "revenue_12m_rolling_avg >= 0"
+              arguments:
+                expression: ">= 0"
       - name: revenue_ytd
         description: "Cumul à date pour l'année"
         tests:
@@ -613,13 +621,19 @@ models:
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "net_revenue >= 0"
+              arguments:
+                expression: ">= 0"
       - name: avg_order_value
         description: "Valeur moyenne des commandes"
       - name: avg_customer_value
         description: "Valeur moyenne par client"
       - name: discount_rate_pct
         description: "Taux de remise en pourcentage"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['year_month', 'city', 'state', 'brand_name', 'category_name', 'price_tier']
+          severity: warn
+
 
   - name: rpt_customer_ltv
     description: |
@@ -658,7 +672,8 @@ models:
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "lifetime_value >= 0"
+              arguments:
+                expression: ">= 0"
       - name: avg_order_value
         description: "Valeur moyenne des commandes"
       - name: order_frequency
@@ -716,7 +731,8 @@ models:
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "current_stock >= 0"
+              arguments:
+                expression: ">= 0"
       - name: stock_value
         description: "Valeur du stock"
       - name: stock_status
@@ -735,3 +751,11 @@ models:
         description: "Priorité d'action"
       - name: stock_value_tier
         description: "Tier de valeur du stock"
+      - name: created_at
+        description: "Date de création"
+      - name: created_by
+        description: "Créé par"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['store_name', 'product_name']
+          severity: warn

@@ -10,6 +10,7 @@
 WITH sales_facts AS (
     SELECT
         -- Clés dimensionnelles
+        oi.item_id,
         oi.order_id,
         o.customer_id,
         oi.product_id,
@@ -81,6 +82,7 @@ WITH sales_facts AS (
     , latest AS (SELECT coalesce(max(order_date_key), '1900-01-01') AS max_order_date FROM {{ this }})
 
     SELECT
+        item_id,
         order_id,
         customer_id,
         product_id,
@@ -129,6 +131,7 @@ WITH sales_facts AS (
     ORDER BY order_date_key, order_id
 {% else %}
     SELECT
+        item_id,
         order_id,
         customer_id,
         product_id,

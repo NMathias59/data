@@ -1,5 +1,5 @@
 {{ config(
-    materialized='incremental'
+    materialized='table'
 ) }}
 
 WITH monthly_category_sales AS (
@@ -137,11 +137,10 @@ WITH monthly_category_sales AS (
 )
 
 {% if is_incremental() %}
+    -- NOTE: This model uses rolling windows; incremental updates are non-trivial.
+    -- Keeping as `table` materialization to ensure correctness of windowed KPIs.
     SELECT *
-    FROM category_growth_final f
-    WHERE f.year_month > (
-        SELECT coalesce(max(year_month), '1900-01') FROM {{ this }}
-    )
+    FROM category_growth_final
     ORDER BY category_name, price_tier, year, month
 {% else %}
     SELECT
@@ -168,5 +167,3 @@ WITH monthly_category_sales AS (
     FROM category_growth_final
     ORDER BY category_name, price_tier, year, month
 {% endif %}
-FROM category_growth_final
-ORDER BY category_name, price_tier, year, month
