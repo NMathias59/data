@@ -4,18 +4,19 @@
 -- Colonnes clés retournées: store_id, store_name, total_orders, unique_customers, total_revenue, avg_order_value
 -- Notes: Agrégation par magasin et période; utile pour la décision opérationnelle locale.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='store_id'
 ) }}
 
 -- Sales by store - Ventes par magasin
 with store_sales as (
     select
-        s.store_id,
-        s.store_name,
-        s.city,
-        s.state,
-        s.street,
-        s.zip_code,
+        s.store_id as store_id,
+        s.store_name as store_name,
+        s.city as city,
+        s.state as state,
+        s.street as street,
+        s.zip_code as zip_code,
         count(distinct o.order_id) as total_orders,
         count(distinct o.customer_id) as unique_customers,
         sum(oi.quantity) as total_items_sold,

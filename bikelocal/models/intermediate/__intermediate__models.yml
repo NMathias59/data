@@ -39,6 +39,16 @@ models:
 
   - name: int_sales__product_performance
     description: "Performance détaillée par produit avec analyses temporelles pour optimiser l'assortiment"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['product_id']
+            severity: error
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_revenue >= 0"
+      - not_null:
+          column_name: product_id
     columns:
       - name: product_id
         description: "Identifiant unique du produit"
@@ -67,6 +77,16 @@ models:
 
   - name: int_sales__store_performance
     description: "Analyse des ventes par magasin pour optimiser les performances locales"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['store_id']
+            severity: error
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_revenue >= 0"
+      - not_null:
+          column_name: store_id
     columns:
       - name: store_id
         description: "Identifiant unique du magasin"
@@ -205,6 +225,16 @@ models:
 
   - name: int_inventory__product_stock
     description: "Niveaux de stock agrégés par produit pour optimiser la gestion des inventaires"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['product_id']
+            severity: error
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_stock_quantity >= 0"
+      - not_null:
+          column_name: product_id
     columns:
       - name: product_id
         description: "Identifiant unique du produit"

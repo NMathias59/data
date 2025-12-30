@@ -4,17 +4,18 @@
 -- Colonnes clés retournées: product_id, product_name, total_units_sold, total_revenue, avg_selling_price, total_discounts, period
 -- Notes: Conservation du niveau produit; inclut métriques par période pour analyses temporelles.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='product_id'
 ) }}
 
 -- Product sales performance - Performance des ventes par produit
 with product_sales as (
     select
-        p.product_id,
-        p.product_name,
-        b.brand_name,
-        c.category_name,
-        p.model_year,
+        p.product_id as product_id,
+        p.product_name as product_name,
+        b.brand_name as brand_name,
+        c.category_name as category_name,
+        p.model_year as model_year,
         p.list_price as original_price,
         sum(oi.quantity) as total_quantity_sold,
         sum(oi.quantity * oi.list_price * (1 - oi.discount)) as total_revenue,

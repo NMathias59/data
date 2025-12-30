@@ -29,17 +29,18 @@ WITH customer_data AS (
             WHEN c.state IN ('IL', 'MI', 'OH', 'WI', 'MN') THEN 'Midwest'
             ELSE 'Other'
         END as region,
-        -- Métriques depuis intermediate (join sur int_sales__customer_orders)
-        coalesce((SELECT any(total_orders) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as total_orders,
-        coalesce((SELECT any(total_amount) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as lifetime_value,
+        -- Métriques depuis intermediate (via join vers int_sales__customer_orders)
+        coalesce(o.total_orders, 0) as total_orders,
+        coalesce(o.total_amount, 0) as lifetime_value,
         -- utiliser NULL si pas de commande plutôt qu'une date factice
-        (SELECT any(first_order_date) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id) as first_order_date,
-        (SELECT any(last_order_date) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id) as last_order_date,
-        coalesce((SELECT any(avg_order_value) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as avg_order_value,
-        (SELECT any(days_since_last_order) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id) as days_since_last_order,
-        coalesce((SELECT any(order_frequency) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as order_frequency,
-        coalesce((SELECT any(monetary_value) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as monetary_value
+        o.first_order_date as first_order_date,
+        o.last_order_date as last_order_date,
+        coalesce(o.avg_order_value, 0) as avg_order_value,
+        o.days_since_last_order as days_since_last_order,
+        coalesce(o.order_frequency, 0) as order_frequency,
+        coalesce(o.monetary_value, 0) as monetary_value
     FROM {{ ref('stg_bike_shop__customers') }} c
+    LEFT JOIN {{ ref('int_sales__customer_orders') }} o ON c.customer_id = o.customer_id
 )
 
 SELECT

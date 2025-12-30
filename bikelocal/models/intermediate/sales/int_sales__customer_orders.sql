@@ -4,19 +4,22 @@
 -- Colonnes clés retournées: customer_id, total_orders, first_order_date, last_order_date, avg_order_value, lifetime_value, order_frequency
 -- Notes: Agrégation par client; utiliser coalesce et nullif pour éviter les divisions par zéro.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='customer_id'
 ) }}
+
+
 
 -- Customer orders summary - Résumé des commandes par client pour analyse RFM
 with customer_orders as (
     select
-        c.customer_id,
-        c.first_name,
-        c.last_name,
-        c.email,
-        c.phone,
-        c.city,
-        c.state,
+        c.customer_id as customer_id,
+        c.first_name as first_name,
+        c.last_name as last_name,
+        c.email as email,
+        c.phone as phone,
+        c.city as city,
+        c.state as state,
         count(distinct o.order_id) as total_orders,
         sum(oi.quantity * oi.list_price * (1 - oi.discount)) as total_amount,
         min(o.order_date) as first_order_date,

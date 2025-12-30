@@ -4,18 +4,19 @@
 -- Colonnes clés retournées: store_id, product_id, current_stock, list_price, stock_value, stock_status
 -- Notes: Mettre à jour fréquences d'actualisation selon cadence d'inventaire (ex: nightly)
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='product_id'
 ) }}
 
 -- Product stock levels - Niveaux de stock par produit
 with product_stock as (
     select
-        p.product_id,
-        p.product_name,
-        b.brand_name,
-        c.category_name,
-        p.model_year,
-        p.list_price,
+        p.product_id as product_id,
+        p.product_name as product_name,
+        b.brand_name as brand_name,
+        c.category_name as category_name,
+        p.model_year as model_year,
+        p.list_price as list_price,
         sum(st.quantity) as total_stock_quantity,
         count(distinct st.store_id) as stores_carrying_product,
         avg(st.quantity) as avg_stock_per_store,
