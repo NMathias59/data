@@ -337,7 +337,7 @@ models:
         description: "Moyenne mobile 12 mois du revenu net"
         tests:
           - not_null
-            - dbt_utils.expression_is_true:
+          - dbt_utils.expression_is_true:
               expression: "revenue_12m_rolling_avg >= 0"
       - name: revenue_ytd
         description: "Cumul à date pour l'année"

@@ -68,7 +68,9 @@ WITH sales_summary AS (
 
 {% if is_incremental() %}
     -- Incremental run: append months newer than the latest persisted month
-    WITH latest AS (SELECT coalesce(max(year_month), '1900-01') AS max_year_month FROM {{ this }})
+    , latest AS (
+        SELECT coalesce(max(year_month), '1900-01') AS max_year_month FROM {{ this }}
+    )
 
     SELECT
         year,
