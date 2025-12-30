@@ -18,7 +18,7 @@ with stock_optimization as (
         b.brand_name,
         c.category_name,
         s.quantity as current_stock,
-        p.list_price,
+        p.list_price as list_price,
         s.quantity * p.list_price as stock_value,
         -- Sales velocity (units sold per month - approximated)
         coalesce(
