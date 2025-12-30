@@ -208,7 +208,7 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
-            combination_of_columns: ['category_id']
+            combination_of_columns: ['category_id','store_id','year_month']
             severity: error
       - dbt_utils.expression_is_true:
           arguments:

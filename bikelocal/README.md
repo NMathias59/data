@@ -29,7 +29,7 @@ Nettoyage et standardisation des données brutes :
 Calculs de métriques business complexes :
 - **Agrégations** : Revenus, quantités, moyennes par entité
 - **Jointures** : Enrichissement avec données contextuelles
-- **Matérialisation** : `view`
+- **Matérialisation** : `incremental` (materialized MergeTree tables dans ClickHouse, modèles préfixés `int_` — ex : `int_sales__category_revenue`). Ces modèles nécessitent un **`unique_key`** explicite (souvent composite, ex. `category_id, store_id, year_month`) pour un incrémental fiable.
 
 #### 3. Marts Layer (14 modèles)
 Tables optimisées pour l'analyse et le reporting :
@@ -59,16 +59,26 @@ cp profiles.yml.example ~/.dbt/profiles.yml
 ```
 
 ### Exécution
-```bash
-# Exécuter tous les modèles
+```powershell
+# Activer l'environnement virtuel (Windows PowerShell)
+. .\.venv_dbt\Scripts\Activate.ps1
+
+# Exécuter tous les modèles + tests (recommandé)
+dbt build
+
+# Ou exécuter uniquement les modèles
 dbt run
 
-# Tester la qualité des données
+# Tester la qualité des données (si vous n'avez pas utilisé dbt build)
 dbt test
 
 # Générer la documentation
 dbt docs generate
-dbt docs serve
+
+# Démarrer le serveur de docs (par défaut port 8080). Si 8080 est indisponible, utilisez 8081 :
+dbt docs serve --port 8080
+# ou
+dbt docs serve --port 8081
 ```
 
 ## 📌 Découverte & Gouvernance
@@ -79,6 +89,8 @@ dbt docs serve
 - **Recommendation incremental** : certains rapports volumineux incluent `meta.incremental_recommendation: true` dans la documentation pour indiquer qu'une matérialisation `incremental` peut être envisagée.
 
 ### 🚀 Opérations - Mode incremental
+
+**Note** : Depuis la migration vers ClickHouse, de nombreux modèles intermédiaires (`int_*`) sont matérialisés en `incremental` (MergeTree) dans la base `localbike_raw_intermediate`. Les marts consomment ces `int_*` pour fiabilité et performance (extraction optimisée, évite les limites SQL de ClickHouse). Les `int_*` exigent un `unique_key` explicite — souvent composite (ex. `category_id, store_id, year_month`).
 
 - **Append-only** : Les rapports temporels (`rpt_*`) sont configurés en mode `incremental` pour n'ajouter que des périodes nouvelles (par `year_month`). Les calculs historiques ne sont pas modifiés automatiquement — pour corriger ou backfiller des périodes antérieures, exécutez un `dbt run --select <model> --full-refresh` ciblé.
 - **Snapshots & updates** : Pour des rapports de snapshot (ex. inventaire, LTV), l'incrémental insère de nouveaux éléments (nouvelles customers, nouvelles combinaisons store/product). Les mises à jour d'un enregistrement existant nécessitent un `--full-refresh` sur le modèle concerné ou l'utilisation d'une stratégie de merge/replace en production.
@@ -138,6 +150,12 @@ Cette section décrit rapidement les KPI principaux exposés par chaque table �
 - **SQL** : Langage de transformation avec extensions ClickHouse
 - **YAML** : Configuration et métadonnées
 
+### Particularités ClickHouse
+- Matérialiser les intermédiaires (`int_*`) en `MergeTree` permet de contourner des limitations (correlated subqueries, nested aggregates) et d'améliorer les performances.
+- Éviter les agrégations imbriquées : utilisez des CTE / sous-requêtes groupées ou materialize des étapes intermédiaires.
+- Utiliser des alias explicites pour les colonnes (`AS ...`) — cela évite des erreurs d'identifiant et facilite la validation dbt.
+- S'assurer que l'utilisateur ClickHouse a les privilèges nécessaires (CREATE, INSERT, SELECT) sur les bases : `localbike_raw`, `localbike_raw_staging`, `localbike_raw_intermediate`, `localbike_raw_marts`.
+
 ## 📈 Utilisation avec Power BI
 
 Les tables marts sont optimisées pour la modélisation constellation Power BI :
@@ -164,6 +182,8 @@ dim_time      ──┘
 - `feature/*` : Nouvelles fonctionnalités
 
 ### Tests
+> Note : le test d'unicité pour `int_sales__category_revenue` a été mis à jour pour vérifier l'unicité sur **(category_id, store_id, year_month)** — il reflète désormais la granularité mensuelle par magasin.
+
 ```bash
 # Tests unitaires
 dbt test
