@@ -64,7 +64,7 @@ WITH inventory_status AS (
 
 {% if is_incremental() %}
     -- Incremental: insert new store/product combos only (updates to existing rows require full-refresh)
-    WITH existing AS (SELECT store_name, product_name FROM {{ this }})
+    , existing AS (SELECT store_name, product_name FROM {{ this }})
     SELECT
         i.store_name,
         i.city,
