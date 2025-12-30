@@ -4,17 +4,18 @@
 -- Colonnes clés retournées: order_id, customer_id, staff_id, order_date, shipped_date, days_to_ship, fulfillment_status
 -- Notes: Important pour analyser SLA et identifier points d'amélioration dans la chaîne d'exécution.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='order_id'
 ) }}
 
 -- Order fulfillment metrics - Métriques de traitement des commandes
 with order_fulfillment as (
     select
-        o.order_id,
-        o.customer_id,
+        o.order_id as order_id,
+        o.customer_id as customer_id,
         c.first_name,
         c.last_name,
-        o.staff_id,
+        o.staff_id as staff_id,
         st.first_name as staff_first_name,
         st.last_name as staff_last_name,
         s.store_name,

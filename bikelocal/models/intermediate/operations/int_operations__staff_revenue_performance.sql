@@ -4,13 +4,14 @@
 -- Colonnes clés retournées: staff_id, total_revenue, revenue_per_order, revenue_rank_in_store
 -- Notes: Metriques calculées par période; utile pour les programmes d'incitation.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='staff_id'
 ) }}
 
 -- Staff revenue performance - Performance des employés en termes de revenus
 with staff_revenue_performance as (
     select
-        st.staff_id,
+        st.staff_id as staff_id,
         concat(st.first_name, ' ', st.last_name) as staff_full_name,
         st.email,
         st.active,

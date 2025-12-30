@@ -4,15 +4,16 @@
 -- Colonnes clés retournées: product_id, store_id, monthly_sales_velocity, months_of_stock_coverage, recommendation
 -- Notes: Requiert historique des ventes pour estimer vélocité; utiliser rolling windows et coalesce pour robustesse.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='product_id,store_id'
 ) }}
 
 -- Stock optimization analysis - Analyse d'optimisation des stocks
 with stock_optimization as (
     select
-        s.store_id,
+        s.store_id as store_id,
         st.store_name,
-        s.product_id,
+        s.product_id as product_id,
         p.product_name,
         b.brand_name,
         c.category_name,

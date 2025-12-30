@@ -2,15 +2,16 @@
 -- Description: Agrège les ventes par catégorie, marque et gamme de prix sur une granularité mensuelle.
 -- Utilité: Sert de source pour les analyses de contribution à la croissance, classements et pour alimenter les marts de catégorie.
 -- Colonnes clés retournées: year, month, year_month, category_name, brand_name, price_tier, total_orders, unique_customers, total_units_sold, gross_revenue, net_revenue, avg_order_value
--- Notes: Agrégation au niveau mois; veiller à utiliser NULL-safe aggregations et à matérialiser en `view` pour réutilisation.
+-- Notes: Agrégation au niveau mois; matérialiser en incremental pour performances et robustesse.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='category_id'
 ) }}
 
 -- Category revenue analysis - Analyse des revenus par catégorie
 with category_revenue as (
     select
-        c.category_id,
+        c.category_id as category_id,
         c.category_name,
         -- Product count in category
         count(distinct p.product_id) as products_in_category,

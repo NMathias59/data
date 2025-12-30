@@ -4,13 +4,14 @@
 -- Colonnes clés retournées: staff_id, total_orders_processed, unique_customers_served, total_items_sold, total_sales_revenue, avg_order_value
 -- Notes: Joindre à la table `stg_bike_shop__staffs` pour enrichissement (manager, store_id)
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='staff_id'
 ) }}
 
 -- Staff performance - Performance des employés
 with staff_performance as (
     select
-        st.staff_id,
+        st.staff_id as staff_id,
         st.first_name,
         st.last_name,
         st.email,

@@ -4,15 +4,16 @@
 -- Colonnes clés retournées: store_id, product_id, current_stock, list_price, stock_status, action_priority
 -- Notes: Logique métier : seuils critiques (0, <=5, <=15), peut être paramétrée par SKU/magasin.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='store_id,product_id'
 ) }}
 
 -- Low stock alerts - Alertes de stock faible
 with low_stock_alerts as (
     select
-        st.store_id,
+        st.store_id as store_id,
         s.store_name,
-        st.product_id,
+        st.product_id as product_id,
         p.product_name,
         b.brand_name,
         c.category_name,

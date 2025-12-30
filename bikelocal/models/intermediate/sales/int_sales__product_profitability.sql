@@ -4,13 +4,14 @@
 -- Colonnes clés retournées: product_id, total_units_sold, gross_revenue, estimated_cost_price, estimated_margin, profit_margin_percentage
 -- Notes: Coûts estimés calculés par règle métier (ex: 60% du prix) — à valider en production.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='product_id'
 ) }}
 
 -- Product profitability analysis - Analyse de la rentabilité par produit
 with product_profitability as (
     select
-        p.product_id,
+        p.product_id as product_id,
         p.product_name,
         b.brand_name,
         c.category_name,
