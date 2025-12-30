@@ -95,6 +95,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+# Local environment overrides and other env files
+.env.local
+.env.*
+!.env.example
 
 # Spyder project settings
 .spyderproject
