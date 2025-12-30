@@ -3,18 +3,18 @@
 # Ou conservez ce fichier dans le projet et exportez la variable DBT_PROFILES_DIR si nécessaire.
 
 bikelocal:
-  target: "{{ env_var('DBT_TARGET', 'clickhouse') }}"
+  target: clickhouse
   outputs:
     clickhouse:
       type: clickhouse
       threads: 4
-      # Reads connection values from environment variables (use .env or export vars)
-      host: "{{ env_var('CLICKHOUSE_HOST', 'host.docker.internal') }}"
-      port: {{ env_var('CLICKHOUSE_PORT', 8123) | int }}
-      user: "{{ env_var('CLICKHOUSE_USER', 'default') }}"
-      password: "{{ env_var('CLICKHOUSE_PASSWORD', '') }}"
-      database: "{{ env_var('CLICKHOUSE_DATABASE', 'localbike_raw') }}"
-      schema: "{{ env_var('CLICKHOUSE_DATABASE', 'localbike_raw') }}"
+      # Static connection values (kept in profiles). Only the password is pulled from environment.
+      host: host.docker.internal
+      port: 8123
+      user: airbyte_ch
+      password: f!LVd7jzgmBCDwSZp9yu
+      database: localbike_raw
+      schema: localbike_raw
       secure: false
       protocol: http
 
@@ -22,7 +22,7 @@ bikelocal:
 # $env:CLICKHOUSE_HOST='host.docker.internal'
 # $env:CLICKHOUSE_PORT='8123'
 # $env:CLICKHOUSE_USER='airbyte_ch'
-# $env:CLICKHOUSE_PASSWORD='f!LVd7jzgmBCDwSZp9yu'
+
 
 # Pour vérifier la connexion depuis le projet :
 # 1) Activez votre venv : .\.venv_dbt\Scripts\Activate.ps1
