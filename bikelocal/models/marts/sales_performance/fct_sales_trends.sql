@@ -73,34 +73,9 @@ WITH trends_facts AS (
     FROM {{ ref('int_sales__trends_analysis') }}
 )
 
-SELECT
-    year_month_key,
-    sales_year,
-    sales_month,
-    sales_quarter,
-    year_month,
-    store_name,
-    city,
-    state,
-    total_orders,
-    unique_customers,
-    total_items_sold,
-    total_revenue,
-    total_discounts_given,
-    avg_order_value,
-    prev_month_revenue,
-    revenue_growth_pct,
-    revenue_per_customer,
-    orders_per_customer,
-    discount_rate_pct,
-    growth_category,
-    revenue_category,
-    season,
-    is_growing,
-    created_at,
-    created_by
 {% if is_incremental() %}
-    WITH latest AS (SELECT coalesce(max(year_month), '1900-01') AS max_year_month FROM {{ this }})
+    , latest AS (SELECT coalesce(max(year_month), '1900-01') AS max_year_month FROM {{ this }})
+
     SELECT
         year_month_key,
         sales_year,
@@ -131,6 +106,32 @@ SELECT
     WHERE t.year_month > (SELECT max_year_month FROM latest)
     ORDER BY sales_year DESC, sales_month DESC, total_revenue DESC
 {% else %}
+    SELECT
+        year_month_key,
+        sales_year,
+        sales_month,
+        sales_quarter,
+        year_month,
+        store_name,
+        city,
+        state,
+        total_orders,
+        unique_customers,
+        total_items_sold,
+        total_revenue,
+        total_discounts_given,
+        avg_order_value,
+        prev_month_revenue,
+        revenue_growth_pct,
+        revenue_per_customer,
+        orders_per_customer,
+        discount_rate_pct,
+        growth_category,
+        revenue_category,
+        season,
+        is_growing,
+        created_at,
+        created_by
     FROM trends_facts
     ORDER BY sales_year DESC, sales_month DESC, total_revenue DESC
 {% endif %}
