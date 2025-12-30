@@ -1,5 +1,5 @@
 {{ config(
-    materialized='table',
+    materialized='incremental',
     
 ) }}
 
@@ -66,26 +66,57 @@ WITH sales_summary AS (
         END
 )
 
-SELECT
-    year,
-    month,
-    year_month,
-    quarter,
-    city,
-    state,
-    brand_name,
-    category_name,
-    price_tier,
-    total_orders,
-    unique_customers,
-    total_items_sold,
-    gross_revenue,
-    total_discounts,
-    net_revenue,
-    avg_order_value,
-    avg_customer_value,
-    discount_rate_pct,
-    created_at,
-    created_by
-FROM sales_summary
-ORDER BY year, month, category_name
+{% if is_incremental() %}
+    -- Incremental run: append months newer than the latest persisted month
+    WITH latest AS (SELECT coalesce(max(year_month), '1900-01') AS max_year_month FROM {{ this }})
+
+    SELECT
+        year,
+        month,
+        year_month,
+        quarter,
+        city,
+        state,
+        brand_name,
+        category_name,
+        price_tier,
+        total_orders,
+        unique_customers,
+        total_items_sold,
+        gross_revenue,
+        total_discounts,
+        net_revenue,
+        avg_order_value,
+        avg_customer_value,
+        discount_rate_pct,
+        created_at,
+        created_by
+    FROM sales_summary s
+    WHERE s.year_month > (SELECT max_year_month FROM latest)
+    ORDER BY year, month, category_name
+{% else %}
+    SELECT
+        year,
+        month,
+        year_month,
+        quarter,
+        city,
+        state,
+        brand_name,
+        category_name,
+        price_tier,
+        total_orders,
+        unique_customers,
+        total_items_sold,
+        gross_revenue,
+        total_discounts,
+        net_revenue,
+        avg_order_value,
+        avg_customer_value,
+        discount_rate_pct,
+        created_at,
+        created_by
+    FROM sales_summary
+    ORDER BY year, month, category_name
+{% endif %}
+ 

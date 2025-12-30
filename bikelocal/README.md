@@ -78,6 +78,12 @@ dbt docs serve
 - **CI** : un workflow GitHub Actions (`.github/workflows/dbt-ci.yml`) exécute `dbt build` et `dbt docs generate` sur PR pour prévenir les régressions.
 - **Recommendation incremental** : certains rapports volumineux incluent `meta.incremental_recommendation: true` dans la documentation pour indiquer qu'une matérialisation `incremental` peut être envisagée.
 
+### 🚀 Opérations - Mode incremental
+
+- **Append-only** : Les rapports temporels (`rpt_*`) sont configurés en mode `incremental` pour n'ajouter que des périodes nouvelles (par `year_month`). Les calculs historiques ne sont pas modifiés automatiquement — pour corriger ou backfiller des périodes antérieures, exécutez un `dbt run --select <model> --full-refresh` ciblé.
+- **Snapshots & updates** : Pour des rapports de snapshot (ex. inventaire, LTV), l'incrémental insère de nouveaux éléments (nouvelles customers, nouvelles combinaisons store/product). Les mises à jour d'un enregistrement existant nécessitent un `--full-refresh` sur le modèle concerné ou l'utilisation d'une stratégie de merge/replace en production.
+- **Bonnes pratiques** : Planifier des jobs de backfill (p.ex. quotidien pour la période courante ou hebdomadaire pour les 2 derniers mois) pour prendre en charge les arrivées tardives et garantir la complétude des KPIs.
+
 ## 📊 Modèles Disponibles
 
 ### Dimensions (Tables de référence)

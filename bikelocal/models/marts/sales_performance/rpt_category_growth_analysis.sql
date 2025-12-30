@@ -6,8 +6,10 @@ WITH monthly_category_sales AS (
     -- Ventes mensuelles par catégorie
     SELECT
         toYear(o.order_date) as year,
-        toMonth(o.order_date) as month,
+        ) }}
         formatDateTime(o.order_date, '%Y-%m') as year_month,
+            materialized='incremental'
+        ) }}
         c.category_name,
         b.brand_name,
 

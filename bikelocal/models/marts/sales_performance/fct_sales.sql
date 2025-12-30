@@ -4,7 +4,7 @@
 -- Colonnes clés retournées: order_id, customer_id, product_id, staff_id, store_id, order_date_key, quantity, gross_amount, discount_amount, net_amount, order_year, order_month
 -- Notes: Matérialisée en `table` pour performance analytiques; contient métriques dérivées pour faciliter reporting.
 {{ config(
-    materialized='table'
+    materialized='incremental'
 ) }}
 
 WITH sales_facts AS (
@@ -121,5 +121,56 @@ SELECT
     shipped_date,
     created_at,
     created_by
-FROM sales_facts
-ORDER BY order_date_key, order_id
+{% if is_incremental() %}
+    WITH latest AS (SELECT coalesce(max(order_date_key), '1900-01-01') AS max_order_date FROM {{ this }})
+    SELECT
+        order_id,
+        customer_id,
+        product_id,
+        staff_id,
+        store_id,
+        order_date_key,
+        quantity,
+        list_price,
+        discount,
+        gross_amount,
+        discount_amount,
+        net_amount,
+        order_year,
+        order_month,
+        order_day,
+        order_year_month,
+        estimated_cost_price,
+        estimated_margin,
+        profit_margin_percentage,
+        net_revenue,
+        total_discounts,
+        product_total_revenue,
+        product_total_orders,
+        avg_selling_price,
+        store_total_orders,
+        store_unique_customers,
+        store_total_revenue,
+        store_avg_order_value,
+        revenue_contribution_pct,
+        category_avg_price,
+        products_per_order_ratio,
+        period_total_orders,
+        period_unique_customers,
+        period_total_revenue,
+        period_total_discounts,
+        period_avg_order_value,
+        prev_month_revenue,
+        revenue_growth_pct,
+        order_status,
+        required_date,
+        shipped_date,
+        created_at,
+        created_by
+    FROM sales_facts sf
+    WHERE sf.order_date_key > (SELECT max_order_date FROM latest)
+    ORDER BY order_date_key, order_id
+{% else %}
+    FROM sales_facts
+    ORDER BY order_date_key, order_id
+{% endif %}

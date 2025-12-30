@@ -250,6 +250,9 @@ models:
 
   - name: fct_sales_trends
     description: "Fait temporel: tendances de ventes (monthly/quarterly) — calcule revenue, prev_month_revenue, growth % et indicateurs de saisonnalité pour les dashboards temporels."
+    meta:
+      incremental_key: year_month
+      incremental_note: "Append-only by `year_month`. To backfill or update historical months, run a targeted full-refresh for the affected periods."
     columns:
       - name: year_month_key
         description: "Clé période YYYY-MM"
@@ -334,9 +337,8 @@ models:
         description: "Moyenne mobile 12 mois du revenu net"
         tests:
           - not_null
-      tests:
-        - dbt_utils.expression_is_true:
-            expression: "revenue_12m_rolling_avg >= 0"
+            - dbt_utils.expression_is_true:
+              expression: "revenue_12m_rolling_avg >= 0"
       - name: revenue_ytd
         description: "Cumul à date pour l'année"
         tests:
@@ -571,6 +573,8 @@ models:
     meta:
       owner: "analytics-team@example.com"
       sla: "daily"
+      incremental_key: year_month
+      incremental_note: "Append-only by `year_month`. Use `--full-refresh` to backfill historical periods when needed."
     columns:
       - name: year
         description: "Année"
@@ -629,6 +633,8 @@ models:
     meta:
       owner: "crm-team@example.com"
       sla: "weekly"
+      incremental_key: customer_id
+      incremental_note: "Insert new or recently-updated customers (based on last_order_date). For full updates run `--full-refresh` on this model."
     columns:
       - name: customer_id
         description: "Identifiant du client"
@@ -686,6 +692,8 @@ models:
     meta:
       owner: "ops-team@example.com"
       sla: "daily"
+      incremental_key: [store_name, product_name]
+      incremental_note: "Insert-only for new store/product combinations. Updates to stock values require a targeted full-refresh."
     columns:
       - name: store_name
         description: "Nom du magasin"

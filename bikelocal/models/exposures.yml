@@ -4,7 +4,7 @@ exposures:
   - name: category_growth_dashboard
     type: dashboard
     depends_on:
-      - ref: rpt_category_growth_analysis
+      - rpt_category_growth_analysis
     owner:
       name: "Analytics Team"
       email: "analytics-team@example.com"
@@ -14,7 +14,7 @@ exposures:
   - name: sales_summary_dashboard
     type: dashboard
     depends_on:
-      - ref: rpt_sales_summary
+      - rpt_sales_summary
     owner:
       name: "BI Team"
       email: "bi-team@example.com"
@@ -24,7 +24,7 @@ exposures:
   - name: customer_ltv_dashboard
     type: dashboard
     depends_on:
-      - ref: rpt_customer_ltv
+      - rpt_customer_ltv
     owner:
       name: "CRM Team"
       email: "crm-team@example.com"
@@ -34,7 +34,7 @@ exposures:
   - name: inventory_status_dashboard
     type: dashboard
     depends_on:
-      - ref: rpt_inventory_status
+      - rpt_inventory_status
     owner:
       name: "Ops Team"
       email: "ops-team@example.com"

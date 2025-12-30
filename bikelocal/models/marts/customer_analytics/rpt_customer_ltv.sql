@@ -4,7 +4,7 @@
 -- Colonnes clés retournées: customer_id, total_orders, lifetime_value, avg_order_value, first_order_date, last_order_date, customer_lifespan_months, projected_annual_value, customer_value_tier
 -- Notes: S'assurer que les dates sont au format Date/DateTime pour utiliser dateDiff correctement.
 {{ config(
-    materialized='table'
+    materialized='incremental'
 ) }}
 
 WITH customer_ltv AS (
@@ -81,5 +81,34 @@ SELECT
     customer_value_tier,
     created_at,
     created_by
-FROM customer_ltv
-ORDER BY lifetime_value DESC, customer_id
+{% if is_incremental() %}
+    WITH latest AS (SELECT coalesce(max(last_order_date), '1900-01-01') AS max_last_order FROM {{ this }})
+    SELECT
+        customer_id,
+        full_name,
+        city,
+        state,
+        region,
+        rfm_segment,
+        total_orders,
+        lifetime_value,
+        avg_order_value,
+        order_frequency,
+        first_order_date,
+        last_order_date,
+        customer_lifespan_days,
+        customer_lifespan_months,
+        days_since_last_order,
+        retention_status,
+        projected_annual_value,
+        customer_value_tier,
+        created_at,
+        created_by
+    FROM customer_ltv cl
+    WHERE cl.last_order_date > (SELECT max_last_order FROM latest)
+       OR cl.customer_id NOT IN (SELECT customer_id FROM {{ this }})
+    ORDER BY lifetime_value DESC, customer_id
+{% else %}
+    FROM customer_ltv
+    ORDER BY lifetime_value DESC, customer_id
+{% endif %}

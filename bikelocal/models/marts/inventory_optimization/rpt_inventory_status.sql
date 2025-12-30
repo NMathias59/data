@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    
+    materialized='incremental'
 ) }}
 
 WITH inventory_status AS (
@@ -63,25 +62,54 @@ WITH inventory_status AS (
     LEFT JOIN {{ ref('stg_bike_shop__categories') }} c ON p.category_id = c.category_id
 )
 
-SELECT
-    store_name,
-    city,
-    state,
-    product_name,
-    brand_name,
-    category_name,
-    price_tier,
-    current_stock,
-    stock_value,
-    stock_status,
-    monthly_sales_velocity,
-    months_of_stock_coverage,
-    stock_optimization_status,
-    revenue_impact,
-    recommendation,
-    inventory_action_priority,
-    stock_value_tier,
-    created_at,
-    created_by
-FROM inventory_status
-ORDER BY stock_value DESC, store_name, product_name
+{% if is_incremental() %}
+    -- Incremental: insert new store/product combos only (updates to existing rows require full-refresh)
+    WITH existing AS (SELECT store_name, product_name FROM {{ this }})
+    SELECT
+        i.store_name,
+        i.city,
+        i.state,
+        i.product_name,
+        i.brand_name,
+        i.category_name,
+        i.price_tier,
+        i.current_stock,
+        i.stock_value,
+        i.stock_status,
+        i.monthly_sales_velocity,
+        i.months_of_stock_coverage,
+        i.stock_optimization_status,
+        i.revenue_impact,
+        i.recommendation,
+        i.inventory_action_priority,
+        i.stock_value_tier,
+        i.created_at,
+        i.created_by
+    FROM inventory_status i
+    LEFT JOIN existing e ON e.store_name = i.store_name AND e.product_name = i.product_name
+    WHERE e.store_name IS NULL
+    ORDER BY stock_value DESC, store_name, product_name
+{% else %}
+    SELECT
+        store_name,
+        city,
+        state,
+        product_name,
+        brand_name,
+        category_name,
+        price_tier,
+        current_stock,
+        stock_value,
+        stock_status,
+        monthly_sales_velocity,
+        months_of_stock_coverage,
+        stock_optimization_status,
+        revenue_impact,
+        recommendation,
+        inventory_action_priority,
+        stock_value_tier,
+        created_at,
+        created_by
+    FROM inventory_status
+    ORDER BY stock_value DESC, store_name, product_name
+{% endif %}
