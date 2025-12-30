@@ -1,7 +1,12 @@
+-- KPI: Performance commerciale par employé
+-- Description: Agrège indicateurs de vente par employé (commandes, revenu, AOV) et fournit des métriques de ranking
+-- Utilité: Sert pour incentive, suivi des objectifs et détection des outliers (top/bottom performers)
+-- Colonnes clés retournées: staff_id, total_orders_processed, total_sales_revenue, avg_order_value, revenue_rank_in_store, performance_tier
+-- Notes: Inclut métriques temporelles; utile pour créer targets et alertes RH.
 {{ config(
-    materialized='table',
-    
+    materialized='table'
 ) }}
+
 
 WITH staff_performance_facts AS (
     SELECT

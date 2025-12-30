@@ -1,3 +1,8 @@
+-- KPI: Indicateurs de profitabilité par produit
+-- Description: Agrège ventes, coûts estimés et marges par produit pour permettre l'analyse de rentabilité.
+-- Utilité: Alimente `fct_product_profitability` pour calculs de marge et catégorisation
+-- Colonnes clés retournées: product_id, total_units_sold, gross_revenue, estimated_cost_price, estimated_margin, profit_margin_percentage
+-- Notes: Coûts estimés calculés par règle métier (ex: 60% du prix) — à valider en production.
 {{ config(
     materialized='view'
 ) }}

@@ -1,3 +1,8 @@
+-- KPI: Tendances de ventes (périodicité mensuelle/trimestrielle)
+-- Description: Regroupe et calcule les indicateurs de tendance (croissance, prev_month_revenue, pct growth) par période et découpage géographique/produit.
+-- Utilité: Alimente `fct_sales_trends` et rapports de suivi de la performance temporelle
+-- Colonnes clés retournées: year, month, year_month, total_revenue, prev_month_revenue, revenue_growth_pct, avg_order_value
+-- Notes: Utiliser fenêtres temporelles pour calculs de série temporelle; vérifier handling des mois sans ventes.
 {{ config(
     materialized='view'
 ) }}

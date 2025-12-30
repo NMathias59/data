@@ -1,3 +1,8 @@
+-- KPI: Indicateurs d'optimisation de stock (couverture, vélocité)
+-- Description: Calcule mois de couverture, vélocité des ventes et recommandations d'optimisation au niveau produit/magasin
+-- Utilité: Sert à produire les recommandations dans `fct_inventory` et `fct_stock_alerts`
+-- Colonnes clés retournées: product_id, store_id, monthly_sales_velocity, months_of_stock_coverage, recommendation
+-- Notes: Requiert historique des ventes pour estimer vélocité; utiliser rolling windows et coalesce pour robustesse.
 {{ config(
     materialized='view'
 ) }}

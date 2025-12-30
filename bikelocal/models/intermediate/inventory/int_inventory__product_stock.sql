@@ -1,3 +1,8 @@
+-- KPI: Stock par produit (niveau produit x magasin)
+-- Description: Agrège les niveaux de stock actuels par produit et magasin, calcule les valeurs de stock et status (Out/Low/Normal)
+-- Utilité: Source pour les modèles d'optimisation stock et alertes (fct_stock_alerts)
+-- Colonnes clés retournées: store_id, product_id, current_stock, list_price, stock_value, stock_status
+-- Notes: Mettre à jour fréquences d'actualisation selon cadence d'inventaire (ex: nightly)
 {{ config(
     materialized='view'
 ) }}

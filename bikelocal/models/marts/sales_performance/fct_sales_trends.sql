@@ -1,3 +1,8 @@
+-- KPI: Tendances de ventes agrégées (time-series)
+-- Description: Table de faits temporelle calculant revenus, croissance, et métriques de tendances par période/magasin/catégorie
+-- Utilité: Sert aux analyses temporelles, alertes de croissance et dashboards executive
+-- Colonnes clés retournées: year_month, sales_year, sales_month, total_revenue, prev_month_revenue, revenue_growth_pct, revenue_per_customer
+-- Notes: Calculs de rolling et growth doivent être revus pour horizon temporel (12 mois glissants déjà disponibles dans rpt_category_growth_analysis)
 {{ config(
     materialized='table'
 ) }}

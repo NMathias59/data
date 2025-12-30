@@ -1,3 +1,8 @@
+-- KPI: Performance produit (Ventes par produit, tendance, unités)
+-- Description: Calcule les métriques de performance pour chaque produit (ventes, unités, revenus, remises) sur des périodes temporelles.
+-- Utilité: Sert d'entrée pour `fct_product_profitability` et rapports produit
+-- Colonnes clés retournées: product_id, product_name, total_units_sold, total_revenue, avg_selling_price, total_discounts, period
+-- Notes: Conservation du niveau produit; inclut métriques par période pour analyses temporelles.
 {{ config(
     materialized='view'
 ) }}

@@ -1,3 +1,8 @@
+-- KPI: Commandes et comportements clients (agrégat par client)
+-- Description: Résume les commandes par client (nombre de commandes, fréquence, valeur moyenne) et retourne des métriques RFM partielles.
+-- Utilité: Base pour `dim_customers` (RFM/LTV) et analyses de rétention
+-- Colonnes clés retournées: customer_id, total_orders, first_order_date, last_order_date, avg_order_value, lifetime_value, order_frequency
+-- Notes: Agrégation par client; utiliser coalesce et nullif pour éviter les divisions par zéro.
 {{ config(
     materialized='view'
 ) }}

@@ -1,6 +1,10 @@
+-- KPI: Lifetime Value (LTV) et indicateurs de rétention client
+-- Description: Rapport consolidé calculant LTV, durée de vie du client, statut de rétention et projections annuelles
+-- Utilité: Utilisé pour prioriser actions marketing et segmentations à forte valeur
+-- Colonnes clés retournées: customer_id, total_orders, lifetime_value, avg_order_value, first_order_date, last_order_date, customer_lifespan_months, projected_annual_value, customer_value_tier
+-- Notes: S'assurer que les dates sont au format Date/DateTime pour utiliser dateDiff correctement.
 {{ config(
-    materialized='table',
-    
+    materialized='table'
 ) }}
 
 WITH customer_ltv AS (

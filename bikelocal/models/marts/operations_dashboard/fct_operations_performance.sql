@@ -1,3 +1,8 @@
+-- KPI: Performance opérationnelle (fulfillment & staff metrics)
+-- Description: Table de faits synthétisant qualité de fulfillment (on-time rate, days_to_ship) et métriques par employé (orders processed, revenue)
+-- Utilité: Permet de suivre SLA, productivité staff et impact sur l'expérience client; utilisée pour dashboards d'opérations
+-- Colonnes clés retournées: order_id, customer_id, staff_id, store_name, order_date, fulfillment_status, days_to_ship, total_orders_processed, total_sales_revenue, performance_tier
+-- Notes: Agrégat au niveau commande avec métriques staff dénormalisées pour faciliter reporting; vérifier fréquences et granularité.
 {{ config(
     materialized='table'
 ) }}

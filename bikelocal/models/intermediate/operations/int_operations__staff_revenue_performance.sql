@@ -1,3 +1,8 @@
+-- KPI: Revenus par employé (KPIs financiers)
+-- Description: Fournit métriques de revenus attribués aux employés pour évaluer contribution financière (orders, revenue per order, revenue rank)
+-- Utilité: Sert de source pour `fct_staff_performance` et classements internes
+-- Colonnes clés retournées: staff_id, total_revenue, revenue_per_order, revenue_rank_in_store
+-- Notes: Metriques calculées par période; utile pour les programmes d'incitation.
 {{ config(
     materialized='view'
 ) }}

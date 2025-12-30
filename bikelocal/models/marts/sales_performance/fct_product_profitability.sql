@@ -1,3 +1,8 @@
+-- KPI: Profitabilité produit (marge, profit estimé, ventes)
+-- Description: Table de faits centrale pour analyser rentabilité par produit (unités vendues, marges estimées, profit par produit)
+-- Utilité: Utilisée pour prioriser assortiments, fixer prix et actions de pricing/discount
+-- Colonnes clés retournées: product_id, product_name, total_units_sold, gross_revenue, estimated_cost_price, estimated_profit, profit_margin_percentage
+-- Notes: Certaines valeurs (coûts estimés) sont des approximations et doivent être validées par la finance.
 {{ config(
     materialized='table'
 ) }}

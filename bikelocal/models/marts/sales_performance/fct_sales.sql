@@ -1,6 +1,10 @@
+-- KPI: Ventes détaillées (niveau transaction)
+-- Description: Fait des mesures détaillées par ligne de commande (vente) utiles pour analyses opérationnelles et modèle constellation BI
+-- Utilité: Source principale pour metrics transactionnels et agrégations ultérieures (marts et rapports)
+-- Colonnes clés retournées: order_id, customer_id, product_id, staff_id, store_id, order_date_key, quantity, gross_amount, discount_amount, net_amount, order_year, order_month
+-- Notes: Matérialisée en `table` pour performance analytiques; contient métriques dérivées pour faciliter reporting.
 {{ config(
-    materialized='table',
-    
+    materialized='table'
 ) }}
 
 WITH sales_facts AS (

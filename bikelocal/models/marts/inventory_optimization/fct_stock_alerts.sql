@@ -1,3 +1,8 @@
+-- KPI: Alertes et priorisation stock (action priority)
+-- Description: Liste des produits nécessitant action (rupture, restock urgent) avec priorisation business et catégories de valeur
+-- Utilité: Dashboard opérationnel pour réapprovisionnement et décisions d'achat
+-- Colonnes clés retournées: store_id, product_id, current_stock, list_price, stock_value, action_priority, stock_value_category
+-- Notes: Priorisation basée sur seuils métier; peut être enrichie par lead time et supplier info.
 {{ config(
     materialized='table'
 ) }}

@@ -1,3 +1,8 @@
+-- KPI: Performance des employés (ventes et service)
+-- Description: Agrège KPIs par employé : nombre de commandes traitées, revenus générés, clients uniques servis, AOV
+-- Utilité: Alimente `dim_staff` et `fct_staff_performance` pour analyses RH et incentives
+-- Colonnes clés retournées: staff_id, total_orders_processed, unique_customers_served, total_items_sold, total_sales_revenue, avg_order_value
+-- Notes: Joindre à la table `stg_bike_shop__staffs` pour enrichissement (manager, store_id)
 {{ config(
     materialized='view'
 ) }}

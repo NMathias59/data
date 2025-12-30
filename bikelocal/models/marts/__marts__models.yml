@@ -3,7 +3,7 @@ version: 2
 models:
   # Dimensions communes
   - name: dim_time
-    description: "Dimension temporelle avec tous les attributs de date pour l'analyse temporelle"
+    description: "Dimension temporelle (models/marts/dimensions/) — fournit toutes les clés et attributs de date pour les analyses temporelles et les jointures aux faits."
     columns:
       - name: date_key
         description: "Clé primaire - date au format YYYY-MM-DD"
@@ -37,7 +37,7 @@ models:
         description: "Trimestre fiscal"
 
   - name: dim_stores
-    description: "Dimension magasins avec informations géographiques et de classification"
+    description: "Dimension magasins (models/marts/dimensions/) — informations géographiques, classification du magasin et attributs pour segmentation opérationnelle."
     columns:
       - name: store_id
         description: "Clé primaire - identifiant unique du magasin"
@@ -63,7 +63,7 @@ models:
         description: "Type de magasin (Flagship, Branch, Standard)"
 
   - name: dim_products
-    description: "Dimension produits avec classifications business et calculs de marge"
+    description: "Dimension produits (models/marts/dimensions/) — classifications business (price_tier, product_category_group), estimations de coût/marge et métadonnées utiles pour analyses produit."
     columns:
       - name: product_id
         description: "Clé primaire - identifiant unique du produit"
@@ -185,7 +185,7 @@ models:
 
   # Tables de faits enrichies
   - name: fct_product_profitability
-    description: "Table de faits de rentabilité produit avec toutes les métriques business avancées"
+    description: "Fait produit: métriques de profitabilité — unités vendues, revenus bruts/net, marges estimées et indicateurs de performance par produit. Utilisé pour prioriser assortiment et pricing."
     columns:
       - name: product_id
         description: "FK vers dim_products"
@@ -249,7 +249,7 @@ models:
         description: "Catégorie de performance ventes (Best, Good, Average, Slow Seller)"
 
   - name: fct_sales_trends
-    description: "Table de faits des tendances de vente avec analyses temporelles et croissance"
+    description: "Fait temporel: tendances de ventes (monthly/quarterly) — calcule revenue, prev_month_revenue, growth % et indicateurs de saisonnalité pour les dashboards temporels."
     columns:
       - name: year_month_key
         description: "Clé période YYYY-MM"
@@ -300,8 +300,54 @@ models:
       - name: is_growing
         description: "Indicateur de croissance (1=croissance, 0=décroissance)"
 
+  - name: rpt_category_growth_analysis
+    description: |
+      Rapport: analyse de la croissance par catégorie et par gamme.
+      - Objectif: Fournir un KPI mensuel prêt pour BI incluant la moyenne mobile 12 mois du revenu,
+        le cumul YTD, le pourcentage de croissance mois à mois et la contribution à la croissance
+        par catégorie et par gamme de prix.
+      - KPIs clés: revenue_12m_rolling_avg, revenue_ytd, revenue_growth_pct,
+        growth_contribution_12m_pct, net_revenue.
+      - Consommateurs: Power BI dashboards (Category Growth), produit/politique assortiment.
+      - Refresh: quotidienne recommandée (SLA: daily).
+    tags: ['rpt']
+    meta:
+      owner: "data.team@example.com"
+      sla: "daily"
+      incremental_recommendation: true
+    columns:
+      - name: year_month
+        description: "Période (YYYY-MM)"
+        tests:
+          - not_null
+      - name: category_name
+        description: "Nom de la catégorie"
+        tests:
+          - not_null
+      - name: price_tier
+        description: "Gamme de prix (Premium, High-End, Mid-Range, Entry, Budget)"
+      - name: net_revenue
+        description: "Revenu net pour la période"
+        tests:
+          - not_null
+      - name: revenue_12m_rolling_avg
+        description: "Moyenne mobile 12 mois du revenu net"
+        tests:
+          - not_null
+      tests:
+        - dbt_utils.expression_is_true:
+            expression: "revenue_12m_rolling_avg >= 0"
+      - name: revenue_ytd
+        description: "Cumul à date pour l'année"
+        tests:
+          - not_null
+      - name: revenue_growth_pct
+        description: "Croissance en % par rapport au mois précédent"
+      - name: growth_contribution_12m_pct
+        description: "Contribution à la croissance calculée sur 12 mois glissants (%)"
+
   - name: fct_operations_performance
-    description: "Table de faits des performances opérationnelles avec fulfillment et staff metrics"
+    description: "Fait opérations: qualité de fulfillment et métriques staff — on_time_rate, days_to_ship, orders processed par employé, revenue contribution. Sert aux KPI SLA et dashboards opérations."
     columns:
       - name: order_id
         description: "ID de la commande"
@@ -369,7 +415,7 @@ models:
         description: "Catégorie de vitesse d'expédition (Very Fast, Fast, Normal, Slow)"
 
   - name: fct_category_performance
-    description: "Table de faits de performance par catégorie de produits"
+    description: "Fait catégorie: performance par catégorie (revenus, parts de contribution, ranking, stock) — utilisée pour analyser contribution à la croissance par gamme."
     columns:
       - name: category_id
         description: "ID de la catégorie"
@@ -417,7 +463,7 @@ models:
         description: "Mois de couverture de stock"
 
   - name: fct_stock_alerts
-    description: "Table de faits des alertes de stock avec priorités d'action"
+    description: "Alertes de stock: lignes d'action priorisées pour réapprovisionnement (action_priority, stock_value_category) — utile pour opérations et acheminement priorités."
     columns:
       - name: store_id
         description: "FK vers dim_stores"
@@ -457,7 +503,7 @@ models:
         description: "Catégorie de vélocité produit (Fast, Medium, Slow, Very Slow)"
 
   - name: fct_inventory
-    description: "Table de faits des stocks avec métriques d'optimisation"
+    description: "Fait inventaire: niveaux de stock par produit/magasin (valeurs, statut, coverage) — utile pour opérations & finance."
     columns:
       - name: store_id
         description: "FK vers dim_stores"
@@ -514,7 +560,17 @@ models:
 
   # Tables de reporting
   - name: rpt_sales_summary
-    description: "Rapport agrégé des ventes par dimensions business"
+    description: |
+      Rapport agrégé des ventes pour analyses temporelles et par segment.
+      - Objectif: Exposer métriques clés par période, magasin, marque et catégorie pour reporting
+        (total_revenue, total_orders, avg_order_value, revenue_growth_pct).
+      - KPIs clés: net_revenue, total_orders, unique_customers, avg_order_value, revenue_growth_pct.
+      - Consommateurs: Tableau de bord général des ventes, analyses de part de marché par catégorie.
+      - Refresh: quotidienne recommandée (SLA: daily).
+    tags: ['rpt']
+    meta:
+      owner: "analytics-team@example.com"
+      sla: "daily"
     columns:
       - name: year
         description: "Année"
@@ -550,6 +606,10 @@ models:
         description: "Total des remises"
       - name: net_revenue
         description: "Chiffre d'affaires net"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "net_revenue >= 0"
       - name: avg_order_value
         description: "Valeur moyenne des commandes"
       - name: avg_customer_value
@@ -558,10 +618,23 @@ models:
         description: "Taux de remise en pourcentage"
 
   - name: rpt_customer_ltv
-    description: "Rapport de valeur vie client avec projections et segmentation"
+    description: |
+      Rapport de Lifetime Value (LTV) client avec segmentation RFM et projections.
+      - Objectif: Fournir LTV par client, segmentation RFM, indicateurs de churn/retention et projections
+        annuelles pour priorisation CRM.
+      - KPIs clés: lifetime_value, avg_order_value, order_frequency, retention_status, projected_annual_value.
+      - Consommateurs: équipe CRM, campagnes marketing, analyses de fidélisation.
+      - Refresh: hebdomadaire (SLA: weekly) ou plus fréquent selon besoin.
+    tags: ['rpt']
+    meta:
+      owner: "crm-team@example.com"
+      sla: "weekly"
     columns:
       - name: customer_id
         description: "Identifiant du client"
+        tests:
+          - not_null
+          - unique
       - name: full_name
         description: "Nom complet du client"
       - name: city
@@ -576,6 +649,10 @@ models:
         description: "Nombre total de commandes"
       - name: lifetime_value
         description: "Valeur vie client totale"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "lifetime_value >= 0"
       - name: avg_order_value
         description: "Valeur moyenne des commandes"
       - name: order_frequency
@@ -598,7 +675,17 @@ models:
         description: "Tier de valeur client"
 
   - name: rpt_inventory_status
-    description: "Rapport de statut des stocks avec priorités d'action"
+    description: |
+      Rapport d'état des stocks destiné à la priorisation des actions opérationnelles.
+      - Objectif: Montrer les niveaux de stock par magasin/produit, la vélocité, les flags de rupture
+        et recommandations de réapprovisionnement.
+      - KPIs clés: current_stock, months_of_stock_coverage, monthly_sales_velocity, low_stock_flag, recommended_reorder_qty.
+      - Consommateurs: équipe Opérations, Merchandising, Planning des achats.
+      - Refresh: quotidienne recommandée (SLA: daily).
+    tags: ['rpt']
+    meta:
+      owner: "ops-team@example.com"
+      sla: "daily"
     columns:
       - name: store_name
         description: "Nom du magasin"
@@ -618,6 +705,10 @@ models:
         description: "Niveau de prix"
       - name: current_stock
         description: "Stock actuel"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "current_stock >= 0"
       - name: stock_value
         description: "Valeur du stock"
       - name: stock_status

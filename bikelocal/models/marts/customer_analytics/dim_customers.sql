@@ -1,3 +1,8 @@
+-- KPI: Profil client enrichi (RFM & LTV)
+-- Description: Dimension client enrichie avec métriques RFM, LTV et indicateurs de rétention
+-- Utilité: Sert comme table de référence pour analyses clients, segmentation et calculs LTV (rpt_customer_ltv)
+-- Colonnes clés retournées: customer_id, full_name, rfm_segment, total_orders, lifetime_value, first_order_date, last_order_date, avg_order_value
+-- Notes: Les valeurs LTV et RFM peuvent provenir d'intermediate models; garder cohérence des calculs.
 {{ config(
     materialized='table'
 ) }}

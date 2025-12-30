@@ -1,3 +1,8 @@
+-- KPI: Alertes de stock faible / rupture
+-- Description: Identifie produits en rupture ou en niveau critique par magasin et calcule les métriques nécessaires pour prioriser le réapprovisionnement
+-- Utilité: Alimente `fct_stock_alerts` (priorisation, action_priority)
+-- Colonnes clés retournées: store_id, product_id, current_stock, list_price, stock_status, action_priority
+-- Notes: Logique métier : seuils critiques (0, <=5, <=15), peut être paramétrée par SKU/magasin.
 {{ config(
     materialized='view'
 ) }}

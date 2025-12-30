@@ -1,0 +1,42 @@
+version: 2
+
+exposures:
+  - name: category_growth_dashboard
+    type: dashboard
+    depends_on:
+      - ref: rpt_category_growth_analysis
+    owner:
+      name: "Analytics Team"
+      email: "analytics-team@example.com"
+    url: "https://powerbi.example.com/reports/category-growth"
+    description: "Power BI dashboard: Category Growth Analysis (monthly 12m rolling avg and contribution)"
+
+  - name: sales_summary_dashboard
+    type: dashboard
+    depends_on:
+      - ref: rpt_sales_summary
+    owner:
+      name: "BI Team"
+      email: "bi-team@example.com"
+    url: "https://powerbi.example.com/reports/sales-summary"
+    description: "Power BI dashboard: Sales Summary and top categories"
+
+  - name: customer_ltv_dashboard
+    type: dashboard
+    depends_on:
+      - ref: rpt_customer_ltv
+    owner:
+      name: "CRM Team"
+      email: "crm-team@example.com"
+    url: "https://powerbi.example.com/reports/customer-ltv"
+    description: "Power BI dashboard: Customer LTV and retention metrics"
+
+  - name: inventory_status_dashboard
+    type: dashboard
+    depends_on:
+      - ref: rpt_inventory_status
+    owner:
+      name: "Ops Team"
+      email: "ops-team@example.com"
+    url: "https://powerbi.example.com/reports/inventory-status"
+    description: "Power BI dashboard: Inventory status and reorder recommendations"

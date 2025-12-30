@@ -1,6 +1,10 @@
+-- KPI: Vue d'inventaire opérationnelle (valeurs et statut de stock)
+-- Description: Table de faits listant les stocks actuels par produit et magasin avec métriques (stock_value, status, coverage)
+-- Utilité: Alimente les rapports d'inventaire et actions d'optimisation
+-- Colonnes clés retournées: store_id, product_id, current_stock, product_name, list_price, stock_value, stock_status, months_of_stock_coverage
+-- Notes: Matérialisée en `table` pour faciliter les jointures et le rafraîchissement coté BI.
 {{ config(
-    materialized='table',
-    
+    materialized='table'
 ) }}
 
 SELECT

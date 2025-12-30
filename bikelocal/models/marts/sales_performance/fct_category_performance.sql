@@ -1,3 +1,8 @@
+-- KPI: Performance de catégorie (revenus, part de croissance, ranking)
+-- Description: Table de faits agrégée par catégorie avec métriques de ventes, contributions et classements.
+-- Utilité: Table de reporting pour suivre la contribution des catégories à la croissance totale et alimenter les tableaux de bord BI.
+-- Colonnes clés retournées: category_id, category_name, total_orders, total_units_sold, gross_revenue, net_revenue, revenue_contribution_pct, revenue_rank
+-- Notes: Généralement matérialisée en `table` pour performance; utiliser pour calculs de contribution à la croissance.
 {{ config(
     materialized='table'
 ) }}

@@ -1,3 +1,8 @@
+-- KPI: Performance magasin (ventes et clientèle par magasin)
+-- Description: Calcule des métriques par magasin (commandes, revenus, clients uniques, AOV) pour analyser la performance par emplacement.
+-- Utilité: Sert d'entrée pour `fct_sales` et tableaux de bord par magasin
+-- Colonnes clés retournées: store_id, store_name, total_orders, unique_customers, total_revenue, avg_order_value
+-- Notes: Agrégation par magasin et période; utile pour la décision opérationnelle locale.
 {{ config(
     materialized='view'
 ) }}

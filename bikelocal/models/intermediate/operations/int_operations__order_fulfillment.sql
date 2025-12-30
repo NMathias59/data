@@ -1,3 +1,8 @@
+-- KPI: Fulfillment (traitement et expédition des commandes)
+-- Description: Mesure les délais (days_to_ship), statut d'exécution (On Time/Late/Overdue) et autres métriques opérationnelles par commande
+-- Utilité: Base pour `fct_operations_performance` pour évaluer qualité de service et délais
+-- Colonnes clés retournées: order_id, customer_id, staff_id, order_date, shipped_date, days_to_ship, fulfillment_status
+-- Notes: Important pour analyser SLA et identifier points d'amélioration dans la chaîne d'exécution.
 {{ config(
     materialized='view'
 ) }}
