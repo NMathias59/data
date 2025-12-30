@@ -29,15 +29,16 @@ WITH customer_data AS (
             WHEN c.state IN ('IL', 'MI', 'OH', 'WI', 'MN') THEN 'Midwest'
             ELSE 'Other'
         END as region,
-        -- Métriques depuis intermediate (valeurs par défaut)
-        0 as total_orders,
-        0 as lifetime_value,
-        '1900-01-01' as first_order_date,
-        '1900-01-01' as last_order_date,
-        0 as avg_order_value,
-        0 as days_since_last_order,
-        0 as order_frequency,
-        0 as monetary_value
+        -- Métriques depuis intermediate (join sur int_sales__customer_orders)
+        coalesce((SELECT any(total_orders) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as total_orders,
+        coalesce((SELECT any(total_amount) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as lifetime_value,
+        -- utiliser NULL si pas de commande plutôt qu'une date factice
+        (SELECT any(first_order_date) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id) as first_order_date,
+        (SELECT any(last_order_date) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id) as last_order_date,
+        coalesce((SELECT any(avg_order_value) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as avg_order_value,
+        (SELECT any(days_since_last_order) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id) as days_since_last_order,
+        coalesce((SELECT any(order_frequency) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as order_frequency,
+        coalesce((SELECT any(monetary_value) FROM {{ ref('int_sales__customer_orders') }} WHERE customer_id = c.customer_id), 0) as monetary_value
     FROM {{ ref('stg_bike_shop__customers') }} c
 )
 
