@@ -117,6 +117,16 @@ models:
 
   - name: int_sales__product_profitability
     description: "Analyse de rentabilité par produit avec marges estimées pour optimiser les prix et l'assortiment"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['product_id']
+            severity: error
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "net_revenue >= 0"
+      - not_null:
+          column_name: product_id
     columns:
       - name: product_id
         description: "Identifiant unique du produit"
@@ -155,6 +165,12 @@ models:
 
   - name: int_sales__trends_analysis
     description: "Analyse des tendances de ventes mensuelles avec indicateurs de croissance"
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_revenue >= 0"
+      - not_null:
+          column_name: year_month
     columns:
       - name: sales_year
         description: "Année des ventes"
@@ -189,6 +205,16 @@ models:
 
   - name: int_sales__category_revenue
     description: "Contribution des catégories de produits aux revenus totaux"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['category_id']
+            severity: error
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "net_revenue >= 0"
+      - not_null:
+          column_name: category_id
     columns:
       - name: category_id
         description: "Identifiant unique de la catégorie"
@@ -261,6 +287,12 @@ models:
 
   - name: int_inventory__low_stock_alerts
     description: "Alertes pour les produits en rupture ou stock faible"
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "current_stock >= 0"
+      - not_null:
+          column_name: product_id
     columns:
       - name: store_id
         description: "Identifiant du magasin"
@@ -285,6 +317,12 @@ models:
 
   - name: int_inventory__stock_optimization
     description: "Optimisation des stocks avec recommandations pour maximiser les revenus"
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "months_of_stock_coverage >= 0"
+      - not_null:
+          column_name: product_id
     columns:
       - name: store_id
         description: "Identifiant du magasin"
@@ -317,6 +355,16 @@ models:
 
   - name: int_operations__staff_performance
     description: "Performance des employés avec métriques de vente"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['staff_id']
+            severity: error
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_sales_revenue >= 0"
+      - not_null:
+          column_name: staff_id
     columns:
       - name: staff_id
         description: "Identifiant unique de l'employé"
@@ -353,6 +401,16 @@ models:
 
   - name: int_operations__staff_revenue_performance
     description: "Performance détaillée des employés actifs avec rankings et tiers de performance"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['staff_id']
+            severity: error
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_revenue >= 0"
+      - not_null:
+          column_name: staff_id
     columns:
       - name: staff_id
         description: "Identifiant unique de l'employé"
@@ -397,6 +455,13 @@ models:
 
   - name: int_operations__order_fulfillment
     description: "Métriques de traitement et livraison des commandes"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['order_id']
+            severity: error
+      - not_null:
+          column_name: order_id
     columns:
       - name: order_id
         description: "Identifiant unique de la commande"

@@ -2,9 +2,10 @@
 -- Description: Regroupe et calcule les indicateurs de tendance (croissance, prev_month_revenue, pct growth) par période et découpage géographique/produit.
 -- Utilité: Alimente `fct_sales_trends` et rapports de suivi de la performance temporelle
 -- Colonnes clés retournées: year, month, year_month, total_revenue, prev_month_revenue, revenue_growth_pct, avg_order_value
--- Notes: Utiliser fenêtres temporelles pour calculs de série temporelle; vérifier handling des mois sans ventes.
+-- Notes: Utiliser fenêtres temporelles pour calculs de série temporelle; matérialiser en incremental pour performances.
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='year_month'
 ) }}
 
 -- Sales trend analysis - Analyse des tendances de ventes
